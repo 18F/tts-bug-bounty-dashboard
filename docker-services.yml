@@ -11,6 +11,7 @@ services:
       # in these directories won't get mixed up with Darwin or
       # other non-Linux native code compiled on the Docker Host.
       - python-venv:/venv/
+      - .:/bugbounty
     environment:
       - SQLITE_DIR=/venv/
       - DDM_IS_RUNNING_IN_DOCKER=yup

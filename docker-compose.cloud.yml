@@ -1,0 +1,10 @@
+version: '2'
+services:
+  app:
+    environment:
+      - "H1_API_USERNAME=fill this in!"
+      - "H1_API_PASSWORD=fill this in!"
+    volumes:
+      - /home/ubuntu/bugbounty:/bugbounty
+    ports:
+      - "80:8000"
