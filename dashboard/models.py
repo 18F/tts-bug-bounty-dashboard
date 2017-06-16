@@ -25,7 +25,7 @@ class Report(models.Model):
         default=True,
         help_text='Whether we agree with Hacker One\'s triage assessment.',
     )
-    is_false_positive = models.BooleanField(
+    is_false_negative = models.BooleanField(
         default=False,
         help_text=('Whether Hacker One improperly classified the report '
                    'as invalid or duplicate.'),

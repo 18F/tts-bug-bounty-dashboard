@@ -13,11 +13,11 @@ class ReportAdmin(admin.ModelAdmin):
         'created_at',
         'state',
         'is_accurate',
-        'is_false_positive',
+        'is_false_negative',
     )
 
     readonly_fields = Report.H1_OWNED_FIELDS
-    fields = ('is_accurate', 'is_false_positive') + readonly_fields
+    fields = ('is_accurate', 'is_false_negative') + readonly_fields
 
     def has_add_permission(self, request):
         return False
