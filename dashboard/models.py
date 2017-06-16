@@ -26,11 +26,11 @@ class Report(models.Model):
     # Data we own/maintain
     is_accurate = models.BooleanField(
         default=True,
-        help_text='Whether we agree with Hacker One\'s triage assessment.',
+        help_text='Whether we agree with HackerOne\'s triage assessment.',
     )
     is_false_negative = models.BooleanField(
         default=False,
-        help_text=('Whether Hacker One improperly classified the report '
+        help_text=('Whether HackerOne improperly classified the report '
                    'as invalid or duplicate.'),
     )
     days_until_triage = models.IntegerField(

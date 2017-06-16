@@ -1,5 +1,5 @@
 This is a prototype dashboard for TTS's bug bounty
-program with Hacker One.
+program with HackerOne.
 
 ## Quick start
 

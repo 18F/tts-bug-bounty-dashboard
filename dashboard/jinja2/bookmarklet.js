@@ -17,7 +17,7 @@
 
   if (reportId === null) {
     window.alert(
-      'This bookmarklet can only be run on Hacker One ' +
+      'This bookmarklet can only be run on HackerOne ' +
       'report detail pages.'
     );
     return;
