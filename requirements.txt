@@ -2,4 +2,5 @@ Django==1.11.2
 h1==1.4.2
 Jinja2==2.9.6
 python-dotenv==0.6.4
-workdays==1.4
+businesstime==0.2.1
+pytz==2017.2

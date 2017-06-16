@@ -1,5 +1,7 @@
+import pytz
 from django.db import models
-from workdays import networkdays
+from businesstime import BusinessTime
+from businesstime.holidays.usa import USFederalHolidays
 from h1.models import Report as H1Report
 
 
@@ -44,12 +46,13 @@ class Report(models.Model):
 
     def save(self, *args, **kwargs):
         if self.created_at and self.triaged_at:
-            self.days_until_triage = networkdays(
-                self.created_at,
-                self.triaged_at,
-                # TODO: Add list of federal holidays.
-                holidays=[],
-            )
+            bt = BusinessTime(holidays=USFederalHolidays())
+            # https://stackoverflow.com/a/5452709
+            est=pytz.timezone('US/Eastern')
+            self.days_until_triage = bt.businesstimedelta(
+                self.created_at.astimezone(est).replace(tzinfo=None),
+                self.triaged_at.astimezone(est).replace(tzinfo=None),
+            ).days
         else:
             self.days_until_triage = None
         return super().save(*args, **kwargs)
