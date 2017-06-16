@@ -1,5 +1,9 @@
-This is a prototype dashboard for TTS's bug bounty
-program with HackerOne.
+This is a prototype dashboard for
+[TTS's bug bounty program][bugbounty] with [HackerOne][].
+
+## Prerequisites
+
+You'll need Python 3.6 and [virtualenv][].
 
 ## Quick start
 
@@ -25,3 +29,7 @@ To sync the app's database with HackerOne, run:
 ```
 python manage.py h1sync
 ```
+
+[bugbounty]: https://github.com/18F/tts-buy-bug-bounty
+[HackerOne]: https://hackerone.com/
+[virtualenv]: http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/
