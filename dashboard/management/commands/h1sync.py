@@ -29,6 +29,7 @@ class Command(BaseCommand):
                     title=h1_report.title,
                     created_at=h1_report.created_at,
                     triaged_at=h1_report.triaged_at,
+                    state=h1_report.state,
                     last_synced_at=now,
                 ),
                 id=h1_report.id

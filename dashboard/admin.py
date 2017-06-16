@@ -11,7 +11,7 @@ class ReportAdmin(admin.ModelAdmin):
         'id',
         'title',
         'created_at',
-        'triaged_at',
+        'state',
         'is_accurate',
         'is_false_positive',
     )
