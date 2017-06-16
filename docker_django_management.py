@@ -174,13 +174,9 @@ def wait_for_db(max_attempts=15, seconds_between_attempts=1):
     '''
 
     from django.db import DEFAULT_DB_ALIAS, connections
-    from django.db.utils import OperationalError, ConnectionDoesNotExist
+    from django.db.utils import OperationalError
 
-    try:
-        connection = connections[DEFAULT_DB_ALIAS]
-    except ConnectionDoesNotExist:
-        return
-
+    connection = connections[DEFAULT_DB_ALIAS]
     attempts = 0
 
     while True:
