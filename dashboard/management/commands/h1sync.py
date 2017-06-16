@@ -1,4 +1,3 @@
-import datetime
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.db.models import Max
@@ -15,11 +14,12 @@ class Command(BaseCommand):
         now = timezone.now()
         res = Report.objects.all().aggregate(Max('last_synced_at'))
         last_sync = res['last_synced_at__max']
+        kwargs = {}
 
-        if last_sync is None:
-            last_sync = datetime.datetime.min
+        if last_sync is not None:
+            kwargs['last_activity_at__gt'] = last_sync
 
-        listing = h1.find_reports(last_activity_at__gt=last_sync)
+        listing = h1.find_reports(**kwargs)
         count = len(listing)
         records = "records" if count != 1 else "record"
         self.stdout.write(f"Synchronizing {count} {records} with H1.")

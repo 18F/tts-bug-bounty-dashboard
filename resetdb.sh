@@ -7,7 +7,7 @@ if [ "$1" == "--remigrate" ]; then
   python manage.py makemigrations
 fi
 
-rm -f db.sqlite3
+rm -f ${SQLITE_DIR:-./}db.sqlite3
 
 python manage.py migrate
 

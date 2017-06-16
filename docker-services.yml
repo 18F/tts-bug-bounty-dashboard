@@ -1,0 +1,20 @@
+version: '2'
+services:
+  base_app:
+    build: .
+    entrypoint: ["python", "/bugbounty/docker_django_management.py"]
+    working_dir: /bugbounty
+    volumes:
+      # Note that we're storing our Python and Node dependencies
+      # in separate volumes, outside of the Docker Host's filesystem.
+      # This is done to ensure that the Linux-based shared libraries
+      # in these directories won't get mixed up with Darwin or
+      # other non-Linux native code compiled on the Docker Host.
+      - python-venv:/venv/
+    environment:
+      - SQLITE_DIR=/venv/
+      - DDM_IS_RUNNING_IN_DOCKER=yup
+      - DDM_VENV_DIR=/venv
+      - DDM_USER_OWNED_DIRS=/venv
+      - DDM_HOST_USER=bugbounty_user
+      - PYTHONUNBUFFERED=yup

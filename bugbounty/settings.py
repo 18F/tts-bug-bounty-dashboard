@@ -18,8 +18,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 dotenv_path = os.path.join(BASE_DIR, '.env')
 
-load_dotenv(dotenv_path)
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
 
+SQLITE_DIR = os.environ.get('SQLITE_DIR', BASE_DIR)
 H1_API_USERNAME = os.environ['H1_API_USERNAME']
 H1_API_PASSWORD = os.environ['H1_API_PASSWORD']
 H1_PROGRAM = 'tts'
@@ -90,7 +92,7 @@ WSGI_APPLICATION = 'bugbounty.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(SQLITE_DIR, 'db.sqlite3'),
     }
 }
 

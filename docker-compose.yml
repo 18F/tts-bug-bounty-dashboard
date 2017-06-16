@@ -1,0 +1,11 @@
+version: '2'
+services:
+  app:
+    extends:
+      file: docker-services.yml
+      service: base_app
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+volumes:
+  python-venv:

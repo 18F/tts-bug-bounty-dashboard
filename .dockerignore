@@ -1,6 +1,6 @@
 __pycache__
-db.sqlite3
+venv
 .env
-venv/
-*.pyc
 docker-compose.override.yml
+.dockerignore
+.git
