@@ -16,7 +16,7 @@ class ReportAdmin(admin.ModelAdmin):
         'is_false_negative',
     )
 
-    readonly_fields = Report.H1_OWNED_FIELDS
+    readonly_fields = Report.H1_OWNED_FIELDS + ('days_until_triage',)
     fields = ('is_accurate', 'is_false_negative') + readonly_fields
 
     def has_add_permission(self, request):

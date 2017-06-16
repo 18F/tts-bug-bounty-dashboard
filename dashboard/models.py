@@ -1,4 +1,5 @@
 from django.db import models
+from workdays import networkdays
 from h1.models import Report as H1Report
 
 
@@ -30,7 +31,25 @@ class Report(models.Model):
         help_text=('Whether Hacker One improperly classified the report '
                    'as invalid or duplicate.'),
     )
+    days_until_triage = models.IntegerField(
+        help_text=('Number of business days between a report being filed '
+                   'and being triaged.'),
+        blank=True,
+        null=True,
+    )
     last_synced_at = models.DateTimeField()
 
     def get_absolute_url(self):
         return f'https://hackerone.com/reports/{self.id}'
+
+    def save(self, *args, **kwargs):
+        if self.created_at and self.triaged_at:
+            self.days_until_triage = networkdays(
+                self.created_at,
+                self.triaged_at,
+                # TODO: Add list of federal holidays.
+                holidays=[],
+            )
+        else:
+            self.days_until_triage = None
+        return super().save(*args, **kwargs)
