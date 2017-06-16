@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ static('vendor/uswds-1.1.0/css/uswds.css') }}">
+<style>
+html {
+  margin: 0 2em;
+}
+</style>
+<title>Bug Bounty Dashboard</title>
+<h1>Bug Bounty Dashboard</h1>
+<p>Drag the link below to your bookmarks bar and click it when you're on a Hacker One report page to modify <a href="https://github.com/18F/tts-buy-bug-bounty/blob/master/solicitation_documents/004_QASP.md#21-performance-requirements-matrix">acceptable quality level (AQL)</a> metadata about the report.</p>
+<a href="{{ bookmarklet_url }}">H1 AQL metadata</a> <span class="usa-form-hint">← Drag this to your bookmarks bar!</span>
+<script src="{{ static('vendor/uswds-1.1.0/js/uswds.js') }}"></script>
+</html>
