@@ -5,4 +5,7 @@ services:
       - "H1_API_USERNAME=fill this in!"
       - "H1_API_PASSWORD=fill this in!"
     volumes:
+      # This assumes you're deploying via an Amazon EC2
+      # Docker machine. You may need to change the path
+      # if you're using something else.
       - /home/ubuntu/bugbounty:/bugbounty
