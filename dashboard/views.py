@@ -22,10 +22,10 @@ def get_stats():
     }
 
 
-def index(request):
+def get_bookmarklet_url(request):
     scheme = 'http' if settings.DEBUG else 'https'
     host = request.META['HTTP_HOST']
-    bookmarklet_url = mark_safe('javascript:' + render_to_string(
+    return mark_safe('javascript:' + render_to_string(
         'bookmarklet.js',
         {
             'base_url': f'{scheme}://{host}'
@@ -33,7 +33,9 @@ def index(request):
         request=request
     ).replace('\n', '').replace('"', '&quot;'))
 
+
+def index(request):
     return render(request, 'index.html', {
         'stats': get_stats(),
-        'bookmarklet_url': bookmarklet_url
+        'bookmarklet_url': get_bookmarklet_url(request)
     })
