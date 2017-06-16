@@ -8,8 +8,8 @@ html {
   margin: 0 2em;
 }
 </style>
-<title>Bug Bounty Dashboard</title>
-<h1>Bug Bounty Dashboard</h1>
+<title>TTS Bug Bounty Dashboard</title>
+<h1>TTS Bug Bounty Dashboard</h1>
 <dl>
   <dt>Triage accuracy</dt>
   <dd>{{ stats.triage_accuracy }}%</dd>
@@ -18,7 +18,7 @@ html {
   <dt>Triaged within one business day</dt>
   <dd>{{ stats.triaged_within_one_day }}%</dd>
 </dl>
-<h2>Bookmarklet</h2>
+<h2>HackerOne Bookmarklet</h2>
 <p>Drag the link below to your bookmarks bar and click it when you're on a HackerOne report page to modify <a href="https://github.com/18F/tts-buy-bug-bounty/blob/master/solicitation_documents/004_QASP.md#21-performance-requirements-matrix">acceptable quality level (AQL)</a> metadata about the report.</p>
 <a href="{{ bookmarklet_url }}">H1 AQL metadata</a> <span class="usa-form-hint">← Drag this to your bookmarks bar!</span>
 <script src="{{ static('vendor/uswds-1.1.0/js/uswds.js') }}"></script>
