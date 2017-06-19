@@ -12,5 +12,6 @@ services:
       file: docker-services.yml
       service: base_app
     command: python manage.py runscheduler
+    stop_signal: SIGKILL
 volumes:
   python-venv:
