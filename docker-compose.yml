@@ -7,5 +7,10 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "${DOCKER_EXPOSED_PORT}:8000"
+  scheduler:
+    extends:
+      file: docker-services.yml
+      service: base_app
+    command: python manage.py runscheduler
 volumes:
   python-venv:
