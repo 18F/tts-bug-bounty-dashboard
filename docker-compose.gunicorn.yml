@@ -1,0 +1,5 @@
+version: '2'
+services:
+  app:
+    command: gunicorn -b :8000 bugbounty.wsgi:application
+    stop_signal: SIGKILL
