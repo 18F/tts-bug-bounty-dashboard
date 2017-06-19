@@ -31,19 +31,22 @@ H1_PROGRAM = 'tts'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'TODO: Get secret from environment'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = 'DEBUG' in os.environ
 
 if DEBUG:
+    os.environ.setdefault(
+        'SECRET_KEY',
+        'This is a fake secret key for development/debugging only'
+    )
     os.environ.setdefault(
         'DATABASE_URL',
         (Path(SQLITE_DIR) / 'db.sqlite3').as_uri().replace('file:///',
                                                            'sqlite:////')
     )
 
+
+SECRET_KEY = os.environ['SECRET_KEY']
 
 ALLOWED_HOSTS = ['*']
 
