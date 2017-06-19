@@ -7,7 +7,11 @@ if [ "$1" == "--remigrate" ]; then
   python manage.py makemigrations
 fi
 
-rm -f ${SQLITE_DIR:-./}db.sqlite3
+python manage.py migrate admin zero
+python manage.py migrate auth zero
+python manage.py migrate contenttypes zero
+python manage.py migrate sessions zero
+python manage.py migrate dashboard zero
 
 python manage.py migrate
 

@@ -23,7 +23,6 @@ dotenv_path = os.path.join(BASE_DIR, '.env')
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 
-SQLITE_DIR = os.environ.get('SQLITE_DIR', BASE_DIR)
 H1_API_USERNAME = os.environ['H1_API_USERNAME']
 H1_API_PASSWORD = os.environ['H1_API_PASSWORD']
 H1_PROGRAM = 'tts'
@@ -41,8 +40,8 @@ if DEBUG:
     )
     os.environ.setdefault(
         'DATABASE_URL',
-        (Path(SQLITE_DIR) / 'db.sqlite3').as_uri().replace('file:///',
-                                                           'sqlite:////')
+        (Path(BASE_DIR) / 'db.sqlite3').as_uri().replace('file:///',
+                                                         'sqlite:////')
     )
 
 

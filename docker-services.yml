@@ -13,7 +13,7 @@ services:
       - python-venv:/venv/
       - .:/bugbounty
     environment:
-      - SQLITE_DIR=/venv/
+      - DATABASE_URL=sqlite:////venv/db.sqlite3
       - DDM_IS_RUNNING_IN_DOCKER=yup
       - DDM_VENV_DIR=/venv
       - DDM_USER_OWNED_DIRS=/venv
