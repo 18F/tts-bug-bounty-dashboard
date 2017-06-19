@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,6 +36,14 @@ SECRET_KEY = 'TODO: Get secret from environment'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+if DEBUG:
+    os.environ.setdefault(
+        'DATABASE_URL',
+        (Path(SQLITE_DIR) / 'db.sqlite3').as_uri().replace('file:///',
+                                                           'sqlite:////')
+    )
+
 
 ALLOWED_HOSTS = ['*']
 
@@ -90,10 +100,7 @@ WSGI_APPLICATION = 'bugbounty.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(SQLITE_DIR, 'db.sqlite3'),
-    }
+    'default': dj_database_url.parse(os.environ['DATABASE_URL'])
 }
 
 
