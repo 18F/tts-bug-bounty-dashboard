@@ -5,6 +5,7 @@ services:
       file: docker-services.yml
       service: base_app
     command: python manage.py runserver 0.0.0.0:8000
+#    command: gunicorn -b :8000 bugbounty.wsgi:application
     ports:
       - "${DOCKER_EXPOSED_PORT}:8000"
   scheduler:
