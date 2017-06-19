@@ -14,6 +14,8 @@ pip install -r requirements.txt
 cp .env.sample .env
 ```
 
+If you're on windows, run `pip install pypiwin32` too.
+
 Now edit `.env` as needed and run:
 
 ```
