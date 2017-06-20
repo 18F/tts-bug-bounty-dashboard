@@ -20,7 +20,13 @@ Now edit `.env` as needed and run:
 bash resetdb.sh
 ```
 
-Then start the server with `python manage.py runserver`.
+Then start the server with `python manage.py runserver`. When
+you visit http://localhost:8000 and are prompted for an email address,
+use:
+
+* `root@gsa.gov` to simulate an administrator logging in;
+* any other `@gsa.gov` email to simulate a non-staff user logging in;
+* any other email to simulate a user who will be prevented from logging in.
 
 ## Developing with Docker
 
@@ -97,6 +103,13 @@ string), the boolean is true; otherwise, it's false.
 
 * `H1_API_PASSWORD` is your HackerOne API Token value. For more
   details, see the [HackerOne API Authentication docs][h1docs].
+
+* `UAA_CLIENT_ID` is your cloud.gov/Cloud Foundry UAA client ID. It
+  defaults to `bugbounty-dev`.
+
+* `UAA_CLIENT_SECRET` is your cloud.gov/Cloud Foundry UAA client secret.
+  If this is undefined and `DEBUG` is true, then a built-in Fake UAA Provider
+  will be used to "simulate" cloud.gov login.
 
 [bugbounty]: https://github.com/18F/tts-buy-bug-bounty
 [HackerOne]: https://hackerone.com/

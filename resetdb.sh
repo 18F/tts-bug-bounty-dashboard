@@ -18,11 +18,11 @@ python manage.py migrate
 python manage.py shell <<EOF
 from django.contrib.auth.models import User
 
-user = User.objects.create_user('root', 'root@gsa.gov', 'test123',
+user = User.objects.create_user('root', 'root@gsa.gov', None,
                                 is_superuser=True, is_staff=True)
 user.save()
 EOF
 
-echo 'Created superuser "root" w/ password "test123".'
+echo 'Created superuser "root@gsa.gov".'
 
 python manage.py h1sync
