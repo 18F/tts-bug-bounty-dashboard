@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
+    'uaa_client',
     'dashboard',
 ]
 
@@ -108,24 +109,29 @@ DATABASES = {
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+AUTHENTICATION_BACKENDS = [
+    'uaa_client.authentication.UaaBackend',
 ]
 
+UAA_APPROVED_DOMAINS = [
+    'gsa.gov',
+]
+
+UAA_AUTH_URL = 'https://login.fr.cloud.gov/oauth/authorize'
+
+UAA_TOKEN_URL = 'https://uaa.fr.cloud.gov/oauth/token'
+
+UAA_CLIENT_ID = os.environ.get('UAA_CLIENT_ID', 'bugbounty-dev')
+
+UAA_CLIENT_SECRET = os.environ.get('UAA_CLIENT_SECRET')
+
+if not UAA_CLIENT_SECRET:
+    if DEBUG:
+        # We'll be using the Fake UAA Provider.
+        UAA_CLIENT_SECRET = 'fake-uaa-provider-client-secret'
+        UAA_AUTH_URL = UAA_TOKEN_URL = 'fake:'
+
+LOGIN_URL = 'uaa_client:login'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/

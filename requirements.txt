@@ -7,3 +7,4 @@ pytz==2017.2
 dj-database-url==0.4.2
 whitenoise==3.3.0
 gunicorn==19.7.1
+cg-django-uaa==1.1.0
