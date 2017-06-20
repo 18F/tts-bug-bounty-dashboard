@@ -20,7 +20,13 @@ Now edit `.env` as needed and run:
 bash resetdb.sh
 ```
 
-Then start the server with `python manage.py runserver`.
+Then start the server with `python manage.py runserver`. When
+you visit http://localhost:8000 and are prompted for an email address,
+use:
+
+* `root@gsa.gov` to simulate an administrator logging in;
+* any other `@gsa.gov` email to simulate a non-staff user logging in;
+* any other email to simulate a user who will be prevented from logging in.
 
 ## Developing with Docker
 
