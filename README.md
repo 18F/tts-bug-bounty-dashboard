@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/18F/tts-bug-bounty-dashboard.svg?branch=master)](https://travis-ci.org/18F/tts-bug-bounty-dashboard)
+
 This is a prototype dashboard for
 [TTS's bug bounty program][bugbounty] with [HackerOne][].
 
