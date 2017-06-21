@@ -111,6 +111,17 @@ string), the boolean is true; otherwise, it's false.
   If this is undefined and `DEBUG` is true, then a built-in Fake UAA Provider
   will be used to "simulate" cloud.gov login.
 
+## Running tests
+
+This project uses [pytest][]/[pytest-django][] for tests and
+[flake8][] for linting.
+
+To run all tests with linting:
+
+```
+flake8 && pytest
+```
+
 [bugbounty]: https://github.com/18F/tts-buy-bug-bounty
 [HackerOne]: https://hackerone.com/
 [virtualenv]: http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/
@@ -118,3 +129,6 @@ string), the boolean is true; otherwise, it's false.
 [DJ-Database-URL schema]: https://github.com/kennethreitz/dj-database-url#url-schema
 [`SECRET_KEY`]: https://docs.djangoproject.com/en/1.8/ref/settings/#secret-key
 [h1docs]: https://api.hackerone.com/docs/v1#authentication
+[pytest]: https://docs.pytest.org/
+[pytest-django]: https://pytest-django.readthedocs.io/
+[flake8]: http://flake8.pycqa.org/
