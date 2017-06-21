@@ -2,6 +2,7 @@ language: python
 python:
   - "3.6"
 install: "pip install -r requirements-dev.txt"
+cache: pip
 env:
   global:
   - H1_API_USERNAME=testing
