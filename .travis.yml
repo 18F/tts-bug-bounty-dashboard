@@ -2,6 +2,11 @@ language: python
 python:
   - "3.6"
 install: "pip install -r requirements-dev.txt"
+env:
+  global:
+  - H1_API_USERNAME=testing
+  - H1_API_PASSWORD=test123
+  - DEBUG=yup
 script:
   - flake8
   - pytest
