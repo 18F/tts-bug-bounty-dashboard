@@ -7,4 +7,5 @@ docker-compose.override.yml
 collected-static/
 .cache
 .coverage
+*.log
 htmlcov/
