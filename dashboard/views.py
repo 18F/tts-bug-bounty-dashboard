@@ -8,7 +8,9 @@ from django.contrib.auth import logout
 from .models import Report
 
 
-def percentage(n, d):
+def percentage(n, d, default=0):
+    if d == 0:
+        return default
     return int((float(n) / float(d)) * 100.0)
 
 
@@ -21,9 +23,10 @@ def get_stats():
     triaged_within_one_day = reports.filter(days_until_triage__lte=1).count()
 
     return {
-        'triage_accuracy': percentage(accurates, count),
-        'false_negatives': percentage(false_negatives, count),
-        'triaged_within_one_day': percentage(triaged_within_one_day, triaged)
+        'triage_accuracy': percentage(accurates, count, 100),
+        'false_negatives': percentage(false_negatives, count, 0),
+        'triaged_within_one_day': percentage(triaged_within_one_day, triaged,
+                                             100)
     }
 
 
