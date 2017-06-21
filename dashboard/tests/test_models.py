@@ -45,4 +45,3 @@ def test_percentage_works_when_denominator_is_nonzero():
 
 def test_percentage_works_when_denominator_is_zero():
     assert percentage(18, 0, default=15) == 15
-
