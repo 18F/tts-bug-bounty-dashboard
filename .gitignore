@@ -5,3 +5,6 @@ venv/
 *.pyc
 docker-compose.override.yml
 collected-static/
+.cache
+.coverage
+htmlcov/
