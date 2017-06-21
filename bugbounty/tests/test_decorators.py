@@ -49,3 +49,8 @@ class StaffLoginRequiredTests(TestCase):
         self.login(is_staff=False)
         res = self.client.get('/staff_only_view/')
         self.assertEqual(403, res.status_code)
+
+
+def test_staff_login_required_works_when_no_function_is_provided():
+    dec = staff_login_required()
+    assert callable(dec)
