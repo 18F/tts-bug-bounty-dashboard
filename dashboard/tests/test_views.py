@@ -18,14 +18,6 @@ def some_user_client(some_user, client):
     return client
 
 
-def test_percentage_works_when_denominator_is_nonzero():
-    assert views.percentage(18, 100) == 18
-
-
-def test_percentage_works_when_denominator_is_zero():
-    assert views.percentage(18, 0, default=15) == 15
-
-
 def test_get_bookmarklet_url_works(rf):
     request = rf.get('/')
     request.META['HTTP_HOST'] = 'boop.gov'

@@ -3,7 +3,7 @@ import pytz
 from datetime import datetime
 from django.utils.timezone import now
 
-from ..models import Report
+from ..models import Report, percentage
 
 
 def new_report(**kwargs):
@@ -37,3 +37,12 @@ def test_save_sets_days_until_triage_to_value_if_triaged():
     )
     r.save()
     assert r.days_until_triage == 1
+
+
+def test_percentage_works_when_denominator_is_nonzero():
+    assert percentage(18, 100) == 18
+
+
+def test_percentage_works_when_denominator_is_zero():
+    assert percentage(18, 0, default=15) == 15
+

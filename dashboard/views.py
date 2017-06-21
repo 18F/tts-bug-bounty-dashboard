@@ -8,28 +8,6 @@ from django.contrib.auth import logout
 from .models import Report
 
 
-def percentage(n, d, default=0):
-    if d == 0:
-        return default
-    return int((float(n) / float(d)) * 100.0)
-
-
-def get_stats():
-    reports = Report.objects.all()
-    count = reports.count()
-    accurates = reports.filter(is_accurate=True).count()
-    false_negatives = reports.filter(is_false_negative=True).count()
-    triaged = reports.filter(days_until_triage__gte=0).count()
-    triaged_within_one_day = reports.filter(days_until_triage__lte=1).count()
-
-    return {
-        'triage_accuracy': percentage(accurates, count, 100),
-        'false_negatives': percentage(false_negatives, count, 0),
-        'triaged_within_one_day': percentage(triaged_within_one_day, triaged,
-                                             100)
-    }
-
-
 def get_bookmarklet_url(request):
     scheme = 'http' if settings.DEBUG else 'https'
     host = request.META['HTTP_HOST']
@@ -45,7 +23,7 @@ def get_bookmarklet_url(request):
 @login_required
 def index(request):
     return render(request, 'index.html', {
-        'stats': get_stats(),
+        'stats': Report.get_stats(),
         'bookmarklet_url': get_bookmarklet_url(request)
     })
 
