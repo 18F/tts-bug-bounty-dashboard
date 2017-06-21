@@ -34,7 +34,7 @@ def test_logout_works(some_user_client):
     assert not response.wsgi_request.user.is_authenticated()
 
 
-def test_index_works_without_any_db_data(some_user_client):
+def test_index_returns_200(some_user_client):
     response = some_user_client.get('/', **{'HTTP_HOST': 'boop.gov'})
     assert response.status_code == 200
 
