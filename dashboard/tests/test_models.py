@@ -75,7 +75,8 @@ def test_get_stats_reports_false_negatives():
 def test_get_stats_reports_triaged_within_one_day():
     new_report(id=1).save()
     new_triaged_report(triage_days=1, id=2).save()
-    assert Report.get_stats()['triaged_within_one_day'] == 100
+    new_triaged_report(triage_days=2, id=3).save()
+    assert Report.get_stats()['triaged_within_one_day'] == 50
 
 
 @pytest.mark.django_db
