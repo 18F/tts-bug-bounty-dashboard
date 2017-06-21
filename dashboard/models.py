@@ -48,7 +48,7 @@ class Report(models.Model):
         if self.created_at and self.triaged_at:
             bt = BusinessTime(holidays=USFederalHolidays())
             # https://stackoverflow.com/a/5452709
-            est=pytz.timezone('US/Eastern')
+            est = pytz.timezone('US/Eastern')
             self.days_until_triage = bt.businesstimedelta(
                 self.created_at.astimezone(est).replace(tzinfo=None),
                 self.triaged_at.astimezone(est).replace(tzinfo=None),

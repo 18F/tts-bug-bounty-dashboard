@@ -10,7 +10,7 @@ You'll need Python 3.6 and [virtualenv][].
 ```
 virtualenv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 cp .env.sample .env
 ```
 
