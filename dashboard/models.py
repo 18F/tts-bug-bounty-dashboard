@@ -12,6 +12,10 @@ def percentage(n, d, default=0):
 
 
 class Report(models.Model):
+    '''
+    Represents a HackerOne report, along with our metadata.
+    '''
+
     # Data mirrored from h1
     title = models.TextField()
     created_at = models.DateTimeField()
@@ -79,3 +83,27 @@ class Report(models.Model):
             'triaged_within_one_day': percentage(triaged_within_one_day,
                                                  triaged, 100)
         }
+
+
+class SingletonMetadata(models.Model):
+    '''
+    A singleton model that stores metadata about the dashboard.
+    '''
+
+    SINGLETON_ID = 1
+
+    id = models.PositiveIntegerField(primary_key=True)
+
+    last_synced_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text='When the dashboard was last synced with HackerOne.'
+    )
+
+    def save(self, *args, **kwargs):
+        self.id = self.SINGLETON_ID
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        return cls.objects.get_or_create(id=cls.SINGLETON_ID)[0]

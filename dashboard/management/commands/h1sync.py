@@ -3,7 +3,7 @@ from django.db.models import Max
 from django.utils import timezone
 
 from dashboard import h1
-from dashboard.models import Report
+from dashboard.models import Report, SingletonMetadata
 
 
 class Command(BaseCommand):
@@ -11,17 +11,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         now = timezone.now()
-        res = Report.objects.all().aggregate(Max('last_synced_at'))
-        last_sync = res['last_synced_at__max']
+        metadata = SingletonMetadata.load()
         kwargs = {}
 
-        if last_sync is not None:
-            kwargs['last_activity_at__gt'] = last_sync
+        if metadata.last_synced_at is not None:
+            self.stdout.write(f"Last sync was at {metadata.last_synced_at}.")
+            kwargs['last_activity_at__gt'] = metadata.last_synced_at
 
         listing = h1.find_reports(**kwargs)
         count = len(listing)
         records = "records" if count != 1 else "record"
-        self.stdout.write(f"Synchronizing {count} {records} with H1.")
+        self.stdout.write(f"Synchronizing {count} {records} with HackerOne.")
         for h1_report in listing:
             Report.objects.update_or_create(
                 defaults=dict(
@@ -33,4 +33,6 @@ class Command(BaseCommand):
                 ),
                 id=h1_report.id
             )
+        metadata.last_synced_at = now
+        metadata.save()
         self.stdout.write("Done.")

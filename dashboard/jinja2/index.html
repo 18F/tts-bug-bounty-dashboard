@@ -16,6 +16,12 @@
     <div class="h1-label">Triaged in one workday</div>
   </div>
 </div>
+{% if last_synced_at %}
+<p>
+  The above statistics are partially based on a snapshot of HackerOne's
+  data that was last updated {{ last_synced_at }}.
+</p>
+{% endif %}
 <h2>HackerOne Bookmarklet</h2>
 <p>Drag the link below to your bookmarks bar and click it when you're on a HackerOne report page to modify <a href="https://github.com/18F/tts-buy-bug-bounty/blob/master/solicitation_documents/004_QASP.md#21-performance-requirements-matrix">acceptable quality level (AQL)</a> metadata about the report.</p>
 <a href="{{ bookmarklet_url }}">H1 AQL metadata</a> <span class="usa-form-hint">← Drag this to your bookmarks bar!</span>

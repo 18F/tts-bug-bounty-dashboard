@@ -3,7 +3,7 @@ import pytz
 from datetime import datetime
 from django.utils.timezone import now
 
-from ..models import Report, percentage
+from ..models import Report, SingletonMetadata, percentage
 
 
 def new_report(**kwargs):
@@ -86,3 +86,19 @@ def test_get_stats_returns_defaults_when_counts_are_zero():
         'false_negatives': 0,
         'triaged_within_one_day': 100,
     }
+
+
+@pytest.mark.django_db
+def test_singleton_metadata_works():
+    right_now = now()
+
+    meta = SingletonMetadata.load()
+    assert meta.id == 1
+    assert meta.last_synced_at is None
+
+    meta.last_synced_at = right_now
+    meta.save()
+
+    meta = SingletonMetadata.load()
+    assert meta.id == 1
+    assert meta.last_synced_at == right_now

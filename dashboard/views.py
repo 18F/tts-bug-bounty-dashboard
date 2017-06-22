@@ -4,8 +4,9 @@ from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
+from django.contrib.humanize.templatetags.humanize import naturaltime
 
-from .models import Report
+from .models import Report, SingletonMetadata
 
 
 def get_bookmarklet_url(request):
@@ -23,6 +24,7 @@ def get_bookmarklet_url(request):
 @login_required
 def index(request):
     return render(request, 'index.html', {
+        'last_synced_at': naturaltime(SingletonMetadata.load().last_synced_at),
         'stats': Report.get_stats(),
         'bookmarklet_url': get_bookmarklet_url(request)
     })
