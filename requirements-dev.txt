@@ -5,3 +5,7 @@ flake8==3.3.0
 pytest==3.1.2
 pytest-cov==2.5.1
 pytest-django==3.1.2
+
+# This isn't a development-specific library, but we're only
+# using it in tests right now, so we'll keep it here.
+attrs==17.2.0
