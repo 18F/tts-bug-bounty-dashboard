@@ -2,7 +2,7 @@ from unittest import mock
 import pytest
 from django.core.management import call_command
 
-from dashboard.management.commands import runscheduler, h1sync
+from dashboard.management.commands import runscheduler
 
 
 def call_runscheduler(loops=1, mock_call_command=None):
