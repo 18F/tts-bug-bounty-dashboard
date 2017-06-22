@@ -26,11 +26,8 @@ def call_runscheduler(loops=1, mock_call_command=None):
 
 def test_it_calls_h1sync():
     mock_call_command, mock_logger = call_runscheduler()
-    cmd = mock_call_command.call_args_list[0][0][0]
-    assert isinstance(cmd, h1sync.Command)
-    mock_logger.info.assert_any_call(
-        'Running "manage.py h1sync".'
-    )
+    mock_call_command.assert_any_call('h1sync')
+    mock_logger.info.assert_any_call('Running "manage.py h1sync".')
     mock_logger.exception.assert_not_called()
 
 
