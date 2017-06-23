@@ -13,7 +13,8 @@ def new_report(**kwargs):
         title='a report',
         created_at=right_now,
         state='new',
-        last_synced_at=right_now
+        last_synced_at=right_now,
+        is_eligible_for_bounty=True,
     ), **kwargs})
 
 
@@ -79,13 +80,26 @@ def test_get_stats_reports_triaged_within_one_day():
     assert Report.get_stats()['triaged_within_one_day'] == 50
 
 
+DEFAULT_STATS = {
+    'triage_accuracy': 100,
+    'false_negatives': 0,
+    'triaged_within_one_day': 100,
+}
+
+
 @pytest.mark.django_db
 def test_get_stats_returns_defaults_when_counts_are_zero():
-    assert Report.get_stats() == {
-        'triage_accuracy': 100,
-        'false_negatives': 0,
-        'triaged_within_one_day': 100,
-    }
+    assert Report.get_stats() == DEFAULT_STATS
+
+
+@pytest.mark.django_db
+def test_get_stats_ignores_reports_ineligible_for_bounty():
+    kwargs = dict(is_eligible_for_bounty=False)
+    new_triaged_report(id=1, triage_days=5, **kwargs).save()
+    new_triaged_report(id=2, is_false_negative=True, **kwargs).save()
+    new_triaged_report(id=3, is_accurate=False, **kwargs).save()
+
+    assert Report.get_stats() == DEFAULT_STATS
 
 
 @pytest.mark.django_db

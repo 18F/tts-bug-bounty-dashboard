@@ -23,6 +23,7 @@ class Report(models.Model):
     state = models.CharField(max_length=30, choices=[
         (name, name) for name in H1Report.STATES
     ])
+    is_eligible_for_bounty = models.NullBooleanField()
     id = models.PositiveIntegerField(primary_key=True)
 
     H1_OWNED_FIELDS = (
@@ -69,7 +70,7 @@ class Report(models.Model):
 
     @classmethod
     def get_stats(cls):
-        reports = cls.objects.all()
+        reports = cls.objects.filter(is_eligible_for_bounty=True)
         count = reports.count()
         accurates = reports.filter(is_accurate=True).count()
         false_negatives = reports.filter(is_false_negative=True).count()

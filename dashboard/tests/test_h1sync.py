@@ -110,17 +110,17 @@ def test_it_filters_by_last_activity_if_previously_synced():
 
 
 @pytest.mark.django_db
-def test_it_skips_reports_without_structured_scope():
+def test_it_handles_reports_without_structured_scope():
     output, _ = call_h1sync(reports=[FakeApiReport(structured_scope=None)])
-    assert Report.objects.all().count() == 0
+    assert Report.objects.all().first().is_eligible_for_bounty is None
 
 
 @pytest.mark.django_db
-def test_it_skips_reports_that_are_not_eligible_for_bounty():
+def test_it_handles_reports_that_are_not_eligible_for_bounty():
     output, _ = call_h1sync(reports=[
         FakeApiReport(structured_scope=FakeStructuredScope(
             eligible_for_bounty=False))])
-    assert Report.objects.all().count() == 0
+    assert Report.objects.all().first().is_eligible_for_bounty is False
 
 
 @pytest.mark.django_db
@@ -145,7 +145,8 @@ def test_it_updates_reports_in_db():
 
     report.refresh_from_db()
     assert report.title == 'bar'
-    assert report.is_false_negative
+    assert report.is_false_negative is True
+    assert report.is_eligible_for_bounty is True
 
 
 @pytest.mark.django_db
