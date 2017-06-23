@@ -32,6 +32,7 @@ class Report(models.Model):
         'title',
         'created_at',
         'triaged_at',
+        'closed_at',
         'state',
         'is_eligible_for_bounty',
         'id',
@@ -41,6 +42,7 @@ class Report(models.Model):
     title = models.TextField()
     created_at = models.DateTimeField()
     triaged_at = models.DateTimeField(blank=True, null=True)
+    closed_at = models.DateTimeField(blank=True, null=True)
     state = models.CharField(max_length=30, choices=[
         (name, name) for name in STATES
     ])

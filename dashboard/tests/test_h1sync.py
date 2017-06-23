@@ -62,6 +62,11 @@ class FakeApiReport:
         validator=attr.validators.optional(is_datetime)
     )
 
+    closed_at = attr.ib(
+        default=None,
+        validator=attr.validators.optional(is_datetime)
+    )
+
     state = attr.ib(
         default='new',
         validator=attr.validators.in_(H1Report.STATES)

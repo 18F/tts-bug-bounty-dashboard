@@ -28,6 +28,7 @@ class Command(BaseCommand):
                     title=h1_report.title,
                     created_at=h1_report.created_at,
                     triaged_at=h1_report.triaged_at,
+                    closed_at=h1_report.closed_at,
                     state=h1_report.state,
                     is_eligible_for_bounty=scope and scope.eligible_for_bounty,
                     last_synced_at=now,
