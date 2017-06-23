@@ -31,6 +31,7 @@ class Report(models.Model):
         'created_at',
         'triaged_at',
         'state',
+        'is_eligible_for_bounty',
         'id',
     )
 
