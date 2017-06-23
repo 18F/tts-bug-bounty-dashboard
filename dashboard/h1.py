@@ -49,5 +49,5 @@ def find_reports(**kwargs):
     client = HackerOneClient(settings.H1_API_USERNAME,
                              settings.H1_API_PASSWORD)
     return client.find_resources(h1_models.Report,
-                                 program=[settings.H1_PROGRAM],
+                                 program=settings.H1_PROGRAMS,
                                  **kwargs)
