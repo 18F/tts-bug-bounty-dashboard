@@ -1,8 +1,7 @@
-from datetime import datetime
 import pytest
-import pytz
 from django.utils.timezone import now
 
+from .test_dates import create_dates_business_days_apart
 from ..models import Report, SingletonMetadata, percentage
 
 
@@ -19,14 +18,10 @@ def new_report(**kwargs):
 
 
 def new_triaged_report(triage_days=1, **kwargs):
-    year = 2017
-    month = 6
-    day = 19  # A monday
-    hour = 14  # In the middle of the day UTC, during business hours EST
+    created_at, triaged_at = create_dates_business_days_apart(triage_days)
     return new_report(
-        created_at=datetime(year, month, day, hour, tzinfo=pytz.utc),
-        triaged_at=datetime(year, month, day + triage_days, hour,
-                            tzinfo=pytz.utc),
+        created_at=created_at,
+        triaged_at=triaged_at,
         **kwargs
     )
 
@@ -95,7 +90,7 @@ def test_get_stats_returns_defaults_when_counts_are_zero():
 @pytest.mark.django_db
 def test_get_stats_ignores_reports_ineligible_for_bounty():
     kwargs = dict(is_eligible_for_bounty=False)
-    new_triaged_report(id=1, triage_days=5, **kwargs).save()
+    new_triaged_report(id=1, triage_days=4, **kwargs).save()
     new_triaged_report(id=2, is_false_negative=True, **kwargs).save()
     new_triaged_report(id=3, is_accurate=False, **kwargs).save()
 
