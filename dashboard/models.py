@@ -2,7 +2,6 @@ import pytz
 from django.db import models
 from businesstime import BusinessTime
 from businesstime.holidays.usa import USFederalHolidays
-from h1.models import Report as H1Report
 
 
 def percentage(n, d, default=0):
@@ -16,15 +15,18 @@ class Report(models.Model):
     Represents a HackerOne report, along with our metadata.
     '''
 
-    # Data mirrored from h1
-    title = models.TextField()
-    created_at = models.DateTimeField()
-    triaged_at = models.DateTimeField(blank=True, null=True)
-    state = models.CharField(max_length=30, choices=[
-        (name, name) for name in H1Report.STATES
-    ])
-    is_eligible_for_bounty = models.NullBooleanField()
-    id = models.PositiveIntegerField(primary_key=True)
+    # These states are taken from:
+    # https://api.hackerone.com/docs/v1#/reports
+    STATES = (
+        'new',
+        'triaged',
+        'needs-more-info',
+        'resolved',
+        'not-applicable',
+        'informative',
+        'duplicate',
+        'spam',
+    )
 
     H1_OWNED_FIELDS = (
         'title',
@@ -34,6 +36,16 @@ class Report(models.Model):
         'is_eligible_for_bounty',
         'id',
     )
+
+    # Data mirrored from h1
+    title = models.TextField()
+    created_at = models.DateTimeField()
+    triaged_at = models.DateTimeField(blank=True, null=True)
+    state = models.CharField(max_length=30, choices=[
+        (name, name) for name in STATES
+    ])
+    is_eligible_for_bounty = models.NullBooleanField()
+    id = models.PositiveIntegerField(primary_key=True)
 
     # Data we own/maintain
     is_accurate = models.BooleanField(
