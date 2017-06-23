@@ -5,7 +5,10 @@ from h1 import models as h1_models
 
 class NewerReport(h1_models.Report):
     '''
-    This overrides the Report class defined at:
+    The schema for the h1 package's Report class is out-of-date and
+    doesn't include some fields that we need.
+
+    So, this overrides the Report class defined at:
 
         https://github.com/uber-common/h1-python/blob/master/h1/models.py
 
@@ -29,8 +32,11 @@ class StructuredScope(h1_models.HackerOneObject):
     This represents the HackerOne API's StructuredScope, documented at:
 
         https://api.hackerone.com/docs/v1#structured-scope
+
+    The h1 package doesn't include this type, so we need to add it.
     '''
 
+    # This attribute automatically registers this class as a type hydrator.
     TYPE = 'structured-scope'
 
     def _hydrate(self):
