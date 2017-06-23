@@ -22,6 +22,12 @@ class Command(BaseCommand):
         records = "records" if count != 1 else "record"
         self.stdout.write(f"Synchronizing {count} {records} with HackerOne.")
         for h1_report in listing:
+            scope = h1_report.structured_scope
+            if not (scope and scope.eligible_for_bounty):
+                self.stdout.write(
+                    f"Skipping #{h1_report.id}, it's not eligible for bounty."
+                )
+                continue
             Report.objects.update_or_create(
                 defaults=dict(
                     title=h1_report.title,

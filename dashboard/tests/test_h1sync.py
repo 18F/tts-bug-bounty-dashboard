@@ -25,6 +25,18 @@ def make_unique_id():
 
 
 @attr.s
+class FakeStructuredScope:
+    '''
+    A fake version of the HackerOne StructuredScope object.
+    '''
+
+    eligible_for_bounty = attr.ib(
+        default=True,
+        validator=attr.validators.instance_of(bool)
+    )
+
+
+@attr.s
 class FakeApiReport:
     '''
     A fake version of the Report object returned by the h1 package.
@@ -53,6 +65,12 @@ class FakeApiReport:
     state = attr.ib(
         default='new',
         validator=attr.validators.in_(H1Report.STATES)
+    )
+
+    structured_scope = attr.ib(
+        default=attr.Factory(FakeStructuredScope),
+        validator=attr.validators.optional(
+            attr.validators.instance_of(FakeStructuredScope))
     )
 
 
@@ -89,6 +107,20 @@ def test_it_filters_by_last_activity_if_previously_synced():
     output, mock_find = call_h1sync()
     mock_find.assert_called_once_with(last_activity_at__gt=now)
     assert 'Last sync' in output
+
+
+@pytest.mark.django_db
+def test_it_skips_reports_without_structured_scope():
+    output, _ = call_h1sync(reports=[FakeApiReport(structured_scope=None)])
+    assert Report.objects.all().count() == 0
+
+
+@pytest.mark.django_db
+def test_it_skips_reports_that_are_not_eligible_for_bounty():
+    output, _ = call_h1sync(reports=[
+        FakeApiReport(structured_scope=FakeStructuredScope(
+            eligible_for_bounty=False))])
+    assert Report.objects.all().count() == 0
 
 
 @pytest.mark.django_db
