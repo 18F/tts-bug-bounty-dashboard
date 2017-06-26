@@ -79,13 +79,13 @@ class FakeApiReport:
     )
 
 
-def call_h1sync(reports=None):
+def call_h1sync(*args, reports=None):
     if reports is None:
         reports = []
     with mock.patch('dashboard.h1.find_reports') as mock_find_reports:
         mock_find_reports.return_value = reports
         out = io.StringIO()
-        call_command('h1sync', stdout=out)
+        call_command('h1sync', *args, stdout=out)
         return out.getvalue(), mock_find_reports
 
 
@@ -112,6 +112,17 @@ def test_it_filters_by_last_activity_if_previously_synced():
     output, mock_find = call_h1sync()
     mock_find.assert_called_once_with(last_activity_at__gt=now)
     assert 'Last sync' in output
+
+
+@pytest.mark.django_db
+def test_it_does_not_filter_by_last_activity_if_all_option_is_set():
+    meta = SingletonMetadata.load()
+    meta.last_synced_at = timezone.now()
+    meta.save()
+
+    output, mock_find = call_h1sync('--all')
+    mock_find.assert_called_once_with()
+    assert 'Last sync' not in output
 
 
 @pytest.mark.django_db

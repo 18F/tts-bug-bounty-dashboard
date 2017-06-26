@@ -5,7 +5,7 @@ from .. import h1
 
 
 @override_settings(H1_API_USERNAME='foo', H1_API_PASSWORD='bar',
-                   H1_PROGRAM='baz')
+                   H1_PROGRAMS=['baz'])
 @mock.patch('dashboard.h1.HackerOneClient')
 def test_find_reports_works(fake_client_class):
     fake_client = mock.MagicMock()

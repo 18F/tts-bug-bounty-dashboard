@@ -76,6 +76,17 @@ To sync the app's database with HackerOne, run:
 python manage.py h1sync
 ```
 
+## Running the scheduler
+
+To run `h1sync` and other necessary tasks at periodic intervals,
+run:
+
+```
+python manage.py runscheduler
+```
+
+Note that only *one* instance of this should ever be running at a time.
+
 ## Environment variables
 
 Unlike traditional Django settings, we use environment variables
@@ -105,6 +116,9 @@ string), the boolean is true; otherwise, it's false.
 
 * `H1_API_PASSWORD` is your HackerOne API Token value. For more
   details, see the [HackerOne API Authentication docs][h1docs].
+
+* `H1_PROGRAMS` is a comma-separated list, without any whitespace, of
+  the HackerOne program handles you want to generate statistics on.
 
 * `UAA_CLIENT_ID` is your cloud.gov/Cloud Foundry UAA client ID. It
   defaults to `bugbounty-dev`.

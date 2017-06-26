@@ -8,12 +8,21 @@ from dashboard.models import Report, SingletonMetadata
 class Command(BaseCommand):
     help = 'Synchronizes DB with hackerone.com'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--all',
+            dest='all',
+            action='store_true',
+            default=False,
+            help='Re-sync all data, ignoring last sync date',
+        )
+
     def handle(self, *args, **options):
         now = timezone.now()
         metadata = SingletonMetadata.load()
         kwargs = {}
 
-        if metadata.last_synced_at is not None:
+        if metadata.last_synced_at is not None and not options['all']:
             self.stdout.write(f"Last sync was at {metadata.last_synced_at}.")
             kwargs['last_activity_at__gt'] = metadata.last_synced_at
 
