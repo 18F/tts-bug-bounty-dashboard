@@ -39,6 +39,8 @@ class Command(BaseCommand):
                     triaged_at=h1_report.triaged_at,
                     closed_at=h1_report.closed_at,
                     state=h1_report.state,
+                    asset_identifier=scope and scope.asset_identifier,
+                    asset_type=scope and scope.asset_type,
                     is_eligible_for_bounty=scope and scope.eligible_for_bounty,
                     last_synced_at=now,
                 ),

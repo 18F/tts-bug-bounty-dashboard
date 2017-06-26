@@ -33,6 +33,8 @@ class Report(models.Model):
         'triaged_at',
         'closed_at',
         'state',
+        'asset_identifier',
+        'asset_type',
         'is_eligible_for_bounty',
         'id',
     )
@@ -45,6 +47,8 @@ class Report(models.Model):
     state = models.CharField(max_length=30, choices=[
         (name, name) for name in STATES
     ])
+    asset_identifier = models.CharField(max_length=255, null=True)
+    asset_type = models.CharField(max_length=255, null=True)
     is_eligible_for_bounty = models.NullBooleanField()
     id = models.PositiveIntegerField(primary_key=True)
 

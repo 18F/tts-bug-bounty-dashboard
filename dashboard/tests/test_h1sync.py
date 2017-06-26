@@ -30,6 +30,16 @@ class FakeStructuredScope:
     A fake version of the HackerOne StructuredScope object.
     '''
 
+    asset_identifier = attr.ib(
+        default='api.example.com',
+        validator=attr.validators.instance_of(str)
+    )
+
+    asset_type = attr.ib(
+        default='url',
+        validator=attr.validators.instance_of(str)
+    )
+
     eligible_for_bounty = attr.ib(
         default=True,
         validator=attr.validators.instance_of(bool)
@@ -128,7 +138,10 @@ def test_it_does_not_filter_by_last_activity_if_all_option_is_set():
 @pytest.mark.django_db
 def test_it_handles_reports_without_structured_scope():
     output, _ = call_h1sync(reports=[FakeApiReport(structured_scope=None)])
-    assert Report.objects.all().first().is_eligible_for_bounty is None
+    report = Report.objects.all().first()
+    assert report.is_eligible_for_bounty is None
+    assert report.asset_identifier is None
+    assert report.asset_type is None
 
 
 @pytest.mark.django_db
@@ -163,6 +176,8 @@ def test_it_updates_reports_in_db():
     assert report.title == 'bar'
     assert report.is_false_negative is True
     assert report.is_eligible_for_bounty is True
+    assert report.asset_identifier == 'api.example.com'
+    assert report.asset_type == 'url'
 
 
 @pytest.mark.django_db
