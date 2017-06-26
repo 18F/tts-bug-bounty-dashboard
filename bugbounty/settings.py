@@ -25,7 +25,7 @@ if os.path.exists(dotenv_path):
 
 H1_API_USERNAME = os.environ['H1_API_USERNAME']
 H1_API_PASSWORD = os.environ['H1_API_PASSWORD']
-H1_PROGRAM = 'tts'
+H1_PROGRAMS = os.environ.get('H1_PROGRAMS', 'tts').split(',')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
