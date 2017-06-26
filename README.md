@@ -111,6 +111,18 @@ string), the boolean is true; otherwise, it's false.
   [DJ-Database-URL schema][]. When `DEBUG` is true, it defaults to a 
   sqlite file in the root of the repository called `db.sqlite3`.
 
+* `EMAIL_URL` is the URL for the service to use when sending
+  email, as per the [dj-email-url schema][]. When `DEBUG` is true,
+  this defaults to `console:`. If it is set to `dummy:` then no emails will
+  be sent and messages about email notifications will not be shown to users.
+  The setting can easily be manually tested via the `manage.py sendtestemail`
+  command.
+
+* `DEFAULT_FROM_EMAIL` is the email from-address to use in all system
+  generated emails to users. It corresponds to Django's
+  [`DEFAULT_FROM_EMAIL`][] setting. It defaults to `noreply@localhost`
+  when `DEBUG=True`.
+
 * `H1_API_USERNAME` is your HackerOne API Token identifier. For more
   details, see the [HackerOne API Authentication docs][h1docs].
 
@@ -143,6 +155,8 @@ flake8 && pytest
 [virtualenv]: http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/
 [twelve-factor]: http://12factor.net/
 [DJ-Database-URL schema]: https://github.com/kennethreitz/dj-database-url#url-schema
+[dj-email-url schema]: https://github.com/migonzalvar/dj-email-url#supported-backends
+[`DEFAULT_FROM_EMAIL`]: https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-DEFAULT_FROM_EMAIL
 [`SECRET_KEY`]: https://docs.djangoproject.com/en/1.8/ref/settings/#secret-key
 [h1docs]: https://api.hackerone.com/docs/v1#authentication
 [pytest]: https://docs.pytest.org/

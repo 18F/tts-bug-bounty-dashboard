@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
+import dj_email_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -43,7 +44,18 @@ if DEBUG:
         (Path(BASE_DIR) / 'db.sqlite3').as_uri().replace('file:///',
                                                          'sqlite:////')
     )
+    os.environ.setdefault(
+        'EMAIL_URL',
+        os.environ.get('DEFAULT_DEBUG_EMAIL_URL', 'console:')
+    )
+    os.environ.setdefault('DEFAULT_FROM_EMAIL', 'noreply@localhost')
 
+email_config = dj_email_url.parse(os.environ['EMAIL_URL'])
+# Sets a number of settings values, as described at
+# https://github.com/migonzalvar/dj-email-url
+vars().update(email_config)
+
+DEFAULT_FROM_EMAIL = os.environ['DEFAULT_FROM_EMAIL']
 
 SECRET_KEY = os.environ['SECRET_KEY']
 
