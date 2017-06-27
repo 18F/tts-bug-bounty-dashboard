@@ -27,10 +27,9 @@ class Command(BaseCommand):
             kwargs['last_activity_at__gt'] = metadata.last_synced_at
 
         listing = h1.find_reports(**kwargs)
-        count = len(listing)
-        records = "records" if count != 1 else "record"
-        self.stdout.write(f"Synchronizing {count} {records} with HackerOne.")
+        count = 0
         for h1_report in listing:
+            self.stdout.write(f"Synchronizing #{h1_report.id}.")
             scope = h1_report.structured_scope
             Report.objects.update_or_create(
                 defaults=dict(
@@ -46,6 +45,10 @@ class Command(BaseCommand):
                 ),
                 id=h1_report.id
             )
+            count += 1
+        records = "records" if count != 1 else "record"
+        self.stdout.write(f"Synchronized {count} {records} with HackerOne.")
+
         metadata.last_synced_at = now
         metadata.save()
         self.stdout.write("Done.")

@@ -1,4 +1,4 @@
-from django.conf import settings
+from itertools import chain
 from h1.client import HackerOneClient
 from h1 import models as h1_models
 
@@ -45,9 +45,66 @@ class StructuredScope(h1_models.HackerOneObject):
         self._make_attribute("eligible_for_bounty", self._hydrate_verbatim)
 
 
+class ProgramConfiguration:
+    '''
+    Represents a HackerOne program's configuration, e.g. the credentials
+    required to glean information about it via the HackerOne API.
+    '''
+
+    MAX_PROGRAMS = 100
+
+    def __init__(self, handle, api_username, api_password):
+        self.handle = handle
+        self.api_username = api_username
+        self.api_password = api_password
+
+    def find_reports(self, **kwargs):
+        '''
+        Find all HackerOne reports for the program, passing any
+        keyword arguments on to HackerOneClient.find_resources().
+        '''
+
+        client = HackerOneClient(self.api_username, self.api_password)
+        return client.find_resources(h1_models.Report,
+                                     program=[self.handle],
+                                     **kwargs)
+
+    @classmethod
+    def parse(cls, env_var):
+        '''
+        Parse a ProgramConfiguration from an environment variable
+        string formatted as the program handle, API username and
+        password separated by colons, e.g. "tts:apiuser:apipass".
+        '''
+
+        return cls(*env_var.split(':', maxsplit=2))
+
+    @classmethod
+    def parse_list_from_environ(cls, prefix, environ):
+        '''
+        Parse a list of ProgramConfiguration objects from the
+        given environment dictionary, assuming that each object
+        has a common prefix followed by an integer (starting at 1).
+        '''
+
+        programs = []
+
+        for i in range(1, cls.MAX_PROGRAMS):
+            name = f'{prefix}{i}'
+            if name in environ:
+                programs.append(cls.parse(environ[name]))
+            else:
+                break
+        return programs
+
+
 def find_reports(**kwargs):
-    client = HackerOneClient(settings.H1_API_USERNAME,
-                             settings.H1_API_PASSWORD)
-    return client.find_resources(h1_models.Report,
-                                 program=settings.H1_PROGRAMS,
-                                 **kwargs)
+    '''
+    Find HackerOne reports for *all* programs, passing any keyword
+    arguments to ProgramConfiguration.find_reports().
+    '''
+
+    from django.conf import settings
+
+    return chain(*[program.find_reports(**kwargs)
+                   for program in settings.H1_PROGRAMS])

@@ -2,8 +2,8 @@ version: '2'
 services:
   app:
     environment:
-      - "H1_API_USERNAME=fill this in!"
-      - "H1_API_PASSWORD=fill this in!"
+      - "H1_PROGRAM_1=fill this in!"
+      - "H1_PROGRAM_2=fill this in (or remove it)!"
     volumes:
       # This assumes you're deploying via an Amazon EC2
       # Docker machine. You may need to change the path

@@ -16,6 +16,9 @@ from dotenv import load_dotenv
 import dj_database_url
 import dj_email_url
 
+from dashboard.h1 import ProgramConfiguration
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,9 +27,10 @@ dotenv_path = os.path.join(BASE_DIR, '.env')
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 
-H1_API_USERNAME = os.environ['H1_API_USERNAME']
-H1_API_PASSWORD = os.environ['H1_API_PASSWORD']
-H1_PROGRAMS = os.environ.get('H1_PROGRAMS', 'tts').split(',')
+H1_PROGRAMS = ProgramConfiguration.parse_list_from_environ(
+    prefix='H1_PROGRAM_',
+    environ=os.environ,
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
