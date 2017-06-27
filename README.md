@@ -123,14 +123,18 @@ string), the boolean is true; otherwise, it's false.
   [`DEFAULT_FROM_EMAIL`][] setting. It defaults to `noreply@localhost`
   when `DEBUG=True`.
 
-* `H1_API_USERNAME` is your HackerOne API Token identifier. For more
-  details, see the [HackerOne API Authentication docs][h1docs].
+* `H1_PROGRAM_n`, where `n` is an integer starting at 1, describes the
+  configuration of the `n`th HackerOne program that you'd like the
+  dashboard to track. Each configuration consists of the program
+  handle, the API token identifier (aka API username), and API token
+  value (aka API password), all delimited by colons.
 
-* `H1_API_PASSWORD` is your HackerOne API Token value. For more
-  details, see the [HackerOne API Authentication docs][h1docs].
+  Thus for instance if you wanted to track two programs, `tts` and
+  `tts-private`, each with their own separate API credentials, you might
+  define `H1_PROGRAM_1=tts:foo:bar` and `H1_PROGRAM_2=tts-private:baz:quux`.
 
-* `H1_PROGRAMS` is a comma-separated list, without any whitespace, of
-  the HackerOne program handles you want to generate statistics on.
+  For more details on the configuration parameters, see the
+  [HackerOne API Authentication docs][h1docs].
 
 * `UAA_CLIENT_ID` is your cloud.gov/Cloud Foundry UAA client ID. It
   defaults to `bugbounty-dev`.
