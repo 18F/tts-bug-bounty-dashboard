@@ -155,13 +155,13 @@ def test_it_handles_reports_that_are_not_eligible_for_bounty():
 @pytest.mark.django_db
 def test_it_outputs_number_of_records_updated():
     output, _ = call_h1sync(reports=[])
-    assert 'Synchronizing 0 records with HackerOne' in output
+    assert 'Synchronized 0 records with HackerOne' in output
 
     output, _ = call_h1sync(reports=[FakeApiReport()])
-    assert 'Synchronizing 1 record with HackerOne' in output
+    assert 'Synchronized 1 record with HackerOne' in output
 
     output, _ = call_h1sync(reports=[FakeApiReport(), FakeApiReport()])
-    assert 'Synchronizing 2 records with HackerOne' in output
+    assert 'Synchronized 2 records with HackerOne' in output
 
 
 @pytest.mark.django_db
