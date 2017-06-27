@@ -1,6 +1,12 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 from . import dates
+
+# These need to be copacetic w/ the HackerOne API, i.e. H1 should never
+# give us asset IDs or types that are longer than these values.
+H1_ASSET_ID_MAXLEN = 255
+H1_ASSET_TYPE_MAXLEN = 255
 
 
 def percentage(n, d, default=0):
@@ -47,8 +53,10 @@ class Report(models.Model):
     state = models.CharField(max_length=30, choices=[
         (name, name) for name in STATES
     ])
-    asset_identifier = models.CharField(max_length=255, null=True)
-    asset_type = models.CharField(max_length=255, null=True)
+    asset_identifier = models.CharField(max_length=H1_ASSET_ID_MAXLEN,
+                                        null=True)
+    asset_type = models.CharField(max_length=H1_ASSET_TYPE_MAXLEN,
+                                  null=True)
     is_eligible_for_bounty = models.NullBooleanField()
     id = models.PositiveIntegerField(primary_key=True)
 
@@ -150,3 +158,52 @@ class SingletonMetadata(models.Model):
     @classmethod
     def load(cls):
         return cls.objects.get_or_create(id=cls.SINGLETON_ID)[0]
+
+
+class Product(models.Model):
+    '''
+    Represents one of our products, e.g. Federalist or login.gov.
+    '''
+
+    title = models.CharField(max_length=50)
+
+    owner = models.ForeignKey(
+        to=User,
+        help_text=('Individual responsible for the product. Nags will '
+                   'be sent to them if reports aren\'t closed.')
+    )
+
+
+class ProductAsset(models.Model):
+    '''
+    Represents an asset that is associated with a product.
+
+    This is the primary mechanism through which reports are mapped to
+    products and product owners.
+    '''
+
+    class Meta:
+        unique_together = ("h1_asset_identifier", "h1_asset_type")
+        index_together = list(unique_together)
+
+    h1_asset_identifier = models.CharField(
+        max_length=H1_ASSET_ID_MAXLEN,
+        help_text=('The HackerOne asset identifier; it is probably a URL '
+                   'of some sort, but it can also be the name of a '
+                   'downloadable executable, an app store ID, or a variety '
+                   'of other things depending on the asset type.'),
+    )
+
+    # We would supply a list of choices here, but HackerOne hasn't
+    # documented them at the time of this writing (June 2017), so we won't.
+    h1_asset_type = models.CharField(
+        max_length=H1_ASSET_TYPE_MAXLEN,
+        help_text=('The HackerOne asset type; can be URL, SOURCE_CODE, or '
+                   'other values that are currently undocumented by H1.'),
+    )
+
+    product = models.ForeignKey(
+        to=Product,
+        help_text='The product this asset belongs to.',
+        null=True,
+    )
