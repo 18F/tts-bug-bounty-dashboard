@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Report
+from .models import Report, SingletonMetadata
 
 
 @admin.register(Report)
@@ -20,6 +20,17 @@ class ReportAdmin(admin.ModelAdmin):
         'next_nag_at',
     )
     fields = ('is_accurate', 'is_false_negative') + readonly_fields
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(SingletonMetadata)
+class SingletonMetadataAdmin(admin.ModelAdmin):
+    fields = ('last_synced_at',)
 
     def has_add_permission(self, request):
         return False
