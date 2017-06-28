@@ -13,6 +13,8 @@ applications:
   command: bash cf.sh
   stack: cflinuxfs2
   timeout: 180
+  env:
+    WEB_CONCURRENCY: "2"
 - name: bbdash-scheduler
   no-route: true
   health-check-type: none
