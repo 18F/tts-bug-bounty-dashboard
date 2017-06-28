@@ -133,6 +133,10 @@ class SingletonMetadata(models.Model):
     A singleton model that stores metadata about the dashboard.
     '''
 
+    class Meta:
+        verbose_name = "dashboard settings"
+        verbose_name_plural = "dashboard settings"
+
     SINGLETON_ID = 1
 
     id = models.PositiveIntegerField(primary_key=True)
@@ -140,7 +144,11 @@ class SingletonMetadata(models.Model):
     last_synced_at = models.DateTimeField(
         blank=True,
         null=True,
-        help_text='When the dashboard was last synced with HackerOne.'
+        help_text=('When the dashboard was last synced with HackerOne. '
+                   'This field generally is not intended for editing, but '
+                   'you can clear it to ensure that the next scheduled '
+                   'sync refreshes all data, which can be useful if the '
+                   'dashboard somehow becomes out-of-sync with HackerOne.')
     )
 
     def save(self, *args, **kwargs):
