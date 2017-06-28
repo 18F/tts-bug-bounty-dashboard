@@ -59,6 +59,13 @@ if DEBUG:
         os.environ.get('DEFAULT_DEBUG_EMAIL_URL', 'console:')
     )
     os.environ.setdefault('DEFAULT_FROM_EMAIL', 'noreply@localhost')
+else:
+    # Assume HTTPS.
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+
+CSRF_COOKIE_HTTPONLY = True
 
 email_config = dj_email_url.parse(os.environ['EMAIL_URL'])
 # Sets a number of settings values, as described at
