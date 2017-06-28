@@ -17,6 +17,7 @@ import dj_database_url
 import dj_email_url
 
 from dashboard.h1 import ProgramConfiguration
+from .settings_utils import load_cups_from_vcap_services, is_on_cloudfoundry
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -26,6 +27,11 @@ dotenv_path = os.path.join(BASE_DIR, '.env')
 
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
+
+if is_on_cloudfoundry():
+    load_cups_from_vcap_services(name='bbdash-env')
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    USE_X_FORWARDED_HOST = True
 
 H1_PROGRAMS = ProgramConfiguration.parse_list_from_environ(
     prefix='H1_PROGRAM_',
@@ -53,6 +59,13 @@ if DEBUG:
         os.environ.get('DEFAULT_DEBUG_EMAIL_URL', 'console:')
     )
     os.environ.setdefault('DEFAULT_FROM_EMAIL', 'noreply@localhost')
+else:
+    # Assume HTTPS.
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+
+CSRF_COOKIE_HTTPONLY = True
 
 email_config = dj_email_url.parse(os.environ['EMAIL_URL'])
 # Sets a number of settings values, as described at

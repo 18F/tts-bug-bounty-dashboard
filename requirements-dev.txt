@@ -1,5 +1,5 @@
-# Include the production dependencies
--r requirements.txt
+# Include the minimal dependencies
+-r requirements-minimal.txt
 
 flake8==3.3.0
 pytest==3.1.2
