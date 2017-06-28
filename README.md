@@ -3,6 +3,8 @@
 This is a prototype dashboard for
 [TTS's bug bounty program][bugbounty] with [HackerOne][].
 
+![dashboard screenshot](https://user-images.githubusercontent.com/124687/27661558-ba643ba6-5c28-11e7-982a-b0fa1b80bed7.png)
+
 ## Prerequisites
 
 You'll need Python 3.6 and [virtualenv][].
