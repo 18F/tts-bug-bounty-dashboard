@@ -1,0 +1,11 @@
+Django==1.11.2
+h1==1.4.2
+Jinja2==2.9.6
+python-dotenv==0.6.4
+businesstime==0.2.1
+pytz==2017.2
+dj-database-url==0.4.2
+dj-email-url==0.0.10
+whitenoise==3.3.0
+gunicorn==19.7.1
+cg-django-uaa==1.1.0

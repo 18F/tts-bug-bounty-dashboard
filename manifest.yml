@@ -1,0 +1,26 @@
+---
+services:
+- bbdash-env
+- bbdash-db
+applications:
+- name: bbdash-dev
+  instances: 1
+  memory: 128M
+  disk_quota: 1024M
+  routes:
+    - route: bbdash-dev.app.cloud.gov
+  buildpack: python_buildpack
+  command: bash cf.sh
+  stack: cflinuxfs2
+  timeout: 180
+- name: bbdash-scheduler
+  no-route: true
+  health-check-type: none
+  instances: 1
+  memory: 128M
+  buildpack: python_buildpack
+  command: python manage.py runscheduler
+  stack: cflinuxfs2
+  timeout: 180
+  env:
+    DISABLE_COLLECTSTATIC: "1"
