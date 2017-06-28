@@ -47,27 +47,6 @@ docker-compose up
 Then visit localhost at the port defined by
 `DOCKER_EXPOSED_PORT` in your `.env` file.
 
-### Deploying to the cloud via docker-machine
-
-The following assumes you're deploying to the cloud
-via Amazon EC2.
-
-```
-docker-machine create aws-bugbounty --driver=amazonec2
-eval $(docker-machine env aws-bugbounty)
-export DOCKER_EXPOSED_PORT=80
-cp docker-compose.cloud.yml docker-compose.override.yml
-```
-
-Now edit `docker-compose.override.yml` as needed and run:
-
-```
-bash docker-cloud-deploy.sh
-bash docker-update.sh
-docker-compose run app bash resetdb.sh
-docker-compose up
-```
-
 ## Syncing with HackerOne
 
 To sync the app's database with HackerOne, run:
@@ -153,6 +132,162 @@ To run all tests with linting:
 ```
 flake8 && pytest
 ```
+
+## Deployment
+
+### Via Docker Machine
+
+The following assumes you're deploying to the cloud
+via Amazon EC2.
+
+```
+docker-machine create aws-bugbounty --driver=amazonec2
+eval $(docker-machine env aws-bugbounty)
+export DOCKER_EXPOSED_PORT=80
+cp docker-compose.cloud.yml docker-compose.override.yml
+```
+
+Now edit `docker-compose.override.yml` as needed and run:
+
+```
+bash docker-cloud-deploy.sh
+bash docker-update.sh
+docker-compose run app bash resetdb.sh
+docker-compose up
+```
+
+### Via cloud.gov
+
+These instructions assume that you want to deploy to the GovCloud instance
+of cloud.gov.
+
+Most of the cloud.gov configuration is documented in the `manifest.yml`
+file at the root of the repository. Note that it mentions two applications:
+
+* `bbdash-dev` is the main web-facing app that handles incoming HTTP requests.
+
+* `bbdash-scheduler` is the worker that runs `manage.py runscheduler`.
+
+#### Log in to cloud.gov and target a space
+
+1. If you haven't already, download the Cloud Foundry CLI according to
+   the [cloud.gov instructions][].
+
+2. Login via the GovCloud api of cloud.gov using
+   `cf login -a api.fr.cloud.gov --sso`.
+
+3. Target the org and space you want to work with, e.g.
+   `cf target -o my-org -s my-space`.
+
+[cloud.gov instructions]: https://docs.cloud.gov/getting-started/setup/
+
+#### Create a database
+
+Run the following:
+
+```
+cf create-service aws-rds shared-psql bbdash-db
+```
+
+Note that you may want to use a different [AWS RDS plan][] than
+`shared-psql` if you actually have money.
+
+[AWS RDS plan]: https://cloud.gov/docs/services/relational-database/
+
+#### Create a cloud.gov identity provider
+
+Run the following:
+
+```
+cf create-service cloud-gov-identity-provider \
+  oauth-client bbdash-uaa-client \
+  -c '{"redirect_uri": ["https://bbdash-dev.app.cloud.gov"]}'
+```
+
+Note that if your app doesn't get deployed to `bbdash-dev.app.cloud.gov`,
+you'll want to change that hostname.
+
+Now run `cf service bbdash-uaa-client` and find the Toaster/Fugacious
+link it shows you. Follow this URL, and you'll see the values you want
+to set `UAA_CLIENT_ID` and ``UAA_CLIENT_SECRET` to when you configure your
+app (which you'll do very soon).
+
+#### Create a User Provided Service (UPS)
+
+For cloud.gov deployments, this project makes use of a
+[User Provided Service (UPS)][UPS] to get its configuration variables,
+instead of using the local environment.
+
+First, create a JSON file called `credentials-dev.json` with all the
+configuration values specified as per the environment variables
+documented in this `README`. **DO NOT COMMIT THIS FILE.**
+
+```json
+{
+  "SECRET_KEY": "my secret key",
+  "...": "other environment variables"
+}
+```
+
+Then enter the following commands to create the user-provided service:
+
+```sh
+cf cups bbdash-env -p credentials-dev.json
+```
+
+#### Push the app
+
+At this point you *should* be ready to deploy the app to cloud.gov.
+
+You can do this by running:
+
+```
+cf push -f manifest.yml
+```
+
+At this point your app *should* be live, but if you ran into problems, see
+the troubleshooting section below.
+
+#### Create an initial superuser
+
+You will need to create a superuser account, after which you'll be able
+to login to the Django admin panel. The easiest way to create
+the initial superuser is to use `cf ssh` to get to the remote host
+and run `python manage.py createsuperuser`. You'll need to do some environment
+setup on the remote host, as described at [Cloud Foundry's SSH docs][cf-ssh].
+
+[cf-ssh]: https://docs.cloudfoundry.org/devguide/deploy-apps/ssh-apps.html#ssh-env
+
+#### Updating the User Provided Service (UPS)
+
+If you need to, you can update the user-provided service with the
+following commands:
+
+```sh
+cf uups bbdash-env -p credentials-dev.json
+```
+
+Note that if you do this and the app is already running, you'll need to
+restage it with `cf restage`.
+
+#### Logs
+
+Logs in cloud.gov-deployed applications are generally viewable by running
+`cf logs <APP_NAME> --recent`.
+
+Note that each application has a separate log, so you will need to look at
+each individually.
+
+#### Troubleshooting
+
+* Problem: Deploying the app fails with an error message about not finding
+  `DATABASE_URL`.
+
+  cloud.gov is supposed to provide this environment variable on its own,
+  but sometimes it doesn't. You can find the appropriate value by running
+  `cf env bbdash-dev` and looking for a `postgres://` URL. Then set this
+  as the value for `DATABASE_URL` in your `credentials-dev.json` and
+  update your UPS.
 
 [bugbounty]: https://github.com/18F/tts-buy-bug-bounty
 [HackerOne]: https://hackerone.com/
