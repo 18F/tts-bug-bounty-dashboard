@@ -209,7 +209,7 @@ you'll want to change that hostname.
 
 Now run `cf service bbdash-uaa-client` and find the Toaster/Fugacious
 link it shows you. Follow this URL, and you'll see the values you want
-to set `UAA_CLIENT_ID` and ``UAA_CLIENT_SECRET` to when you configure your
+to set `UAA_CLIENT_ID` and `UAA_CLIENT_SECRET` to when you configure your
 app (which you'll do very soon).
 
 #### Create a User Provided Service (UPS)
@@ -235,9 +235,11 @@ Then enter the following commands to create the user-provided service:
 cf cups bbdash-env -p credentials-dev.json
 ```
 
+[UPS]: https://docs.cloudfoundry.org/devguide/services/user-provided.html
+
 #### Push the app
 
-At this point you *should* be ready to deploy the app to cloud.gov.
+At this point you should be ready to deploy the app to cloud.gov.
 
 You can do this by running:
 
@@ -245,7 +247,7 @@ You can do this by running:
 cf push -f manifest.yml
 ```
 
-At this point your app *should* be live, but if you ran into problems, see
+At this point your app should be live, but if you ran into problems, see
 the troubleshooting section below.
 
 #### Create an initial superuser
