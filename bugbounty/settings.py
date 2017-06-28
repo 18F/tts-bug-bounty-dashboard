@@ -17,7 +17,7 @@ import dj_database_url
 import dj_email_url
 
 from dashboard.h1 import ProgramConfiguration
-from .settings_utils import load_cups_from_vcap_services
+from .settings_utils import load_cups_from_vcap_services, is_on_cloudfoundry
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -28,7 +28,10 @@ dotenv_path = os.path.join(BASE_DIR, '.env')
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 
-load_cups_from_vcap_services(name='bbdash-env')
+if is_on_cloudfoundry():
+    load_cups_from_vcap_services(name='bbdash-env')
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    USE_X_FORWARDED_HOST = True
 
 H1_PROGRAMS = ProgramConfiguration.parse_list_from_environ(
     prefix='H1_PROGRAM_',

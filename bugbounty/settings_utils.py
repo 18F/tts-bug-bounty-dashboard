@@ -4,6 +4,10 @@ import json
 Environ = os._Environ
 
 
+def is_on_cloudfoundry(env: Environ=os.environ) -> bool:
+    return 'VCAP_SERVICES' in env
+
+
 def load_cups_from_vcap_services(name: str, env: Environ=os.environ) -> None:
     '''
     Detects if VCAP_SERVICES exists in the environment; if so, parses
@@ -13,7 +17,7 @@ def load_cups_from_vcap_services(name: str, env: Environ=os.environ) -> None:
     https://docs.cloudfoundry.org/devguide/services/user-provided.html
     '''
 
-    if 'VCAP_SERVICES' not in env:
+    if not is_on_cloudfoundry(env):
         return
 
     vcap = json.loads(env['VCAP_SERVICES'])
