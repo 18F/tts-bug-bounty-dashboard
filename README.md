@@ -230,8 +230,11 @@ documented in this `README`. **DO NOT COMMIT THIS FILE.**
 
 ```json
 {
-  "SECRET_KEY": "my secret key",
-  "...": "other environment variables"
+    "SECRET_KEY": "{some random secret key}",
+    "UAA_CLIENT_ID": "{client id from above}",
+    "UAA_CLIENT_SECRET": "{client secret from above}",
+    "EMAIL_URL": "{fixme: what should this be?}",
+    "DEFAULT_FROM_EMAIL": "{from email for nag notifications}"
 }
 ```
 
@@ -285,17 +288,6 @@ Logs in cloud.gov-deployed applications are generally viewable by running
 
 Note that each application has a separate log, so you will need to look at
 each individually.
-
-#### Troubleshooting
-
-* Problem: Deploying the app fails with an error message about not finding
-  `DATABASE_URL`.
-
-  cloud.gov is supposed to provide this environment variable on its own,
-  but sometimes it doesn't. You can find the appropriate value by running
-  `cf env bbdash-dev` and looking for a `postgres://` URL. Then set this
-  as the value for `DATABASE_URL` in your `credentials-dev.json` and
-  update your UPS.
 
 [bugbounty]: https://github.com/18F/tts-buy-bug-bounty
 [HackerOne]: https://hackerone.com/

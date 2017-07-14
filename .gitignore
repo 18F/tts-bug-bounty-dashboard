@@ -10,3 +10,4 @@ collected-static/
 *.log
 htmlcov/
 *credentials*.json
+.vscode

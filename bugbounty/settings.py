@@ -17,7 +17,8 @@ import dj_database_url
 import dj_email_url
 
 from dashboard.h1 import ProgramConfiguration
-from .settings_utils import load_cups_from_vcap_services, is_on_cloudfoundry
+from .settings_utils import (load_cups_from_vcap_services, is_on_cloudfoundry,
+                             load_database_url_from_vcap_services)
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -30,6 +31,7 @@ if os.path.exists(dotenv_path):
 
 if is_on_cloudfoundry():
     load_cups_from_vcap_services(name='bbdash-env')
+    load_database_url_from_vcap_services(name='bbdash-env', service='aws-rds')
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     USE_X_FORWARDED_HOST = True
 
