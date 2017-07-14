@@ -22,6 +22,11 @@ jobs:
             . venv/bin/activate
             flake8
             pytest
+          environment:
+            H1_API_USERNAME: testing
+            H1_API_PASSWORD: test123
+            DEBUG: yup
+
       - store_artifacts:
           path: test-reports/
           destination: tr1
