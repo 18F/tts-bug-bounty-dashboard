@@ -1,7 +1,8 @@
 import unittest
 import json
 
-from ..settings_utils import load_cups_from_vcap_services, load_database_url_from_vcap_services
+from ..settings_utils import (load_cups_from_vcap_services,
+                              load_database_url_from_vcap_services)
 
 
 def make_vcap_services_env(vcap_services):
@@ -55,8 +56,9 @@ class CupsTests(unittest.TestCase):
 
         self.assertEqual(env['boop'], 'jones')
 
+
 def test_database_settings_loaded():
-    db_uri = "this is the database url"
-    env = make_vcap_services_env({"aws-rds": [{"credentials": {"uri": db_uri}}]})
+    uri = "this is the database url"
+    env = make_vcap_services_env({"aws-rds": [{"credentials": {"uri": uri}}]})
     load_database_url_from_vcap_services("boop-env", "aws-rds", env=env)
-    assert env['DATABASE_URL'] == db_uri
+    assert env['DATABASE_URL'] == uri
