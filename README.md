@@ -209,10 +209,14 @@ cf create-service cloud-gov-identity-provider \
 Note that if your app doesn't get deployed to `bbdash-dev.app.cloud.gov`,
 you'll want to change that hostname.
 
-Now run `cf service bbdash-uaa-client` and find the Toaster/Fugacious
-link it shows you. Follow this URL, and you'll see the values you want
+Now create a service key to get  the values you want
 to set `UAA_CLIENT_ID` and `UAA_CLIENT_SECRET` to when you configure your
-app (which you'll do very soon).
+app (which you'll do very soon):
+
+```
+cf create-service-key bbdash-uaa-client bbdash-uaa-service-key -c '{"redirect_uri": ["https://bbdash-dev.app.cloud.gov"]}'
+cf service-key bbdash-uaa-client bbdash-uaa-service-key
+```
 
 #### Create a User Provided Service (UPS)
 
