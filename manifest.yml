@@ -3,12 +3,12 @@ services:
 - bbdash-env
 - bbdash-db
 applications:
-- name: bbdash-dev
+- name: bbdash
   instances: 1
   memory: 128M
   disk_quota: 1024M
   routes:
-    - route: bbdash-dev.app.cloud.gov
+    - route: bbdash.app.cloud.gov
   buildpack: python_buildpack
   command: bash cf.sh
   stack: cflinuxfs2
