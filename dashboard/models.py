@@ -93,9 +93,9 @@ class Report(models.Model):
         # some issues get moved directly from new to closed - for example,
         # issues marked as duplicate. So use either the triage date or the
         # close date as the date that counts as "triaged"
-        
+
         triage_date = self.triaged_at or self.closed_at
-        
+
         if self.created_at and triage_date:
             self.days_until_triage = dates.businesstimedelta(self.created_at, triage_date).days
         else:
