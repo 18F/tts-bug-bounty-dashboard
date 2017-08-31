@@ -44,6 +44,12 @@ def test_save_sets_days_until_triage_to_value_if_triaged():
     r.save()
     assert r.days_until_triage == 1
 
+@pytest.mark.django_db
+def test_save_sets_days_until_triage_to_value_if_closed():
+    created_at, closed_at = create_dates_business_days_apart(1)
+    report = new_report(created_at=created_at, closed_at=closed_at)
+    report.save()
+    assert report.days_until_triage == 1
 
 def test_percentage_works_when_denominator_is_nonzero():
     assert percentage(18, 100) == 18
@@ -89,13 +95,10 @@ def test_get_stats_returns_defaults_when_counts_are_zero():
 
 @pytest.mark.django_db
 def test_get_stats_ignores_reports_ineligible_for_bounty():
-    kwargs = dict(is_eligible_for_bounty=False)
-    new_triaged_report(id=1, triage_days=4, **kwargs).save()
-    new_triaged_report(id=2, is_false_negative=True, **kwargs).save()
-    new_triaged_report(id=3, is_accurate=False, **kwargs).save()
-
+    new_triaged_report(id=1, triage_days=4, is_eligible_for_bounty=False).save()
+    new_triaged_report(id=2, is_false_negative=True, is_eligible_for_bounty=False).save()
+    new_triaged_report(id=3, is_accurate=False, is_eligible_for_bounty=False).save()
     assert Report.get_stats() == DEFAULT_STATS
-
 
 @pytest.mark.django_db
 def test_singleton_metadata_works():
