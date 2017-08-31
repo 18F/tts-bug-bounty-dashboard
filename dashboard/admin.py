@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Report, SingletonMetadata
 
+
 class TriagedWithinSLAFilter(admin.SimpleListFilter):
     title = "triage SLA"
     parameter_name = 'met_triage_sla'
@@ -16,6 +17,7 @@ class TriagedWithinSLAFilter(admin.SimpleListFilter):
             return queryset.filter(days_until_triage__lte=1)
         elif self.value() == "no":
             return queryset.filter(days_until_triage__gt=1)
+
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
