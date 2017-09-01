@@ -42,6 +42,7 @@ class ReportAdmin(admin.ModelAdmin):
     list_filter = (
         TriagedWithinSLAFilter,
         'created_at',
+        'state',
         'is_accurate',
         'is_false_negative',
         'is_eligible_for_bounty',
