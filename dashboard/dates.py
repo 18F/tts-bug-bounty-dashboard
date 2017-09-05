@@ -67,3 +67,21 @@ def calculate_next_nag(created_at, last_nagged_at=None):
         days_since_creation = businesstimedelta(created_at, dt).days
         if days_since_creation >= next_nag_day:
             return dt
+
+
+def contract_month(date, start_day=1):
+    '''
+    Return the "contract month" for a given date.
+
+    Contracts run from some arbitrary day each month to month - for example,
+    a "contract month" might be Jan 7 - Feb 6 - rather than calendar months.
+
+    Returns a datetime.date representing the start of the contract month.
+    '''
+    month = datetime.date(date.year, date.month, start_day)
+    if date.day < start_day:
+        new_month = month.month - 1
+        if new_month == 0:
+            return month.replace(month.year - 1, 12)
+        return month.replace(month=new_month)
+    return month

@@ -1,7 +1,8 @@
 import pytz
-from datetime import datetime
+import pytest
+from datetime import date, datetime
 
-from ..dates import calculate_next_nag, businesstimedelta
+from ..dates import calculate_next_nag, businesstimedelta, contract_month
 
 
 def test_calculate_next_nag_works_when_never_nagged():
@@ -52,3 +53,12 @@ def test_businesstimedelta_works():
     b = datetime(2017, 6, 26, 14, tzinfo=pytz.utc)
 
     assert businesstimedelta(a, b).days == 5
+
+@pytest.mark.parametrize("input_date, start_day, expected_contract_month", [
+    (date(2017, 6, 15), 7, date(2017, 6, 7)),
+    (date(2017, 6, 1),  7, date(2017, 5, 7)),
+    (date(2017, 7, 1),  2, date(2017, 6, 2)),
+    (date(2017, 1, 1),  3, date(2016, 12, 3)),
+])
+def test_contract_month(input_date, start_day, expected_contract_month):
+    assert contract_month(input_date, start_day=start_day) == expected_contract_month
