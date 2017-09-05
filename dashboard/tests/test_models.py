@@ -140,3 +140,33 @@ def test_get_stats_by_month():
     }
 
     assert Report.get_stats_by_month() == expected_stats
+
+@pytest.mark.django_db
+def test_get_stats_by_month_different_contract_start_day():
+    
+    contract_start_day = 7
+
+    # these two tickets are on two "sides" of a contract day, so we should get
+    # two months out of the stats.
+    d1 = datetime.datetime(2017, 9, 11, 14, 0, tzinfo=pytz.utc)
+    new_report(id=1, created_at=d1, triaged_at=d1 + datetime.timedelta(days=1)).save()
+
+    d2 = datetime.datetime(2017, 9, 4, 14, 0, tzinfo=pytz.utc)
+    new_report(id=2, created_at=d2, triaged_at=d2 + datetime.timedelta(days=2)).save()
+
+    expected_stats = {
+        datetime.date(2017, 8, contract_start_day): {
+            'count': 1,
+            'triaged_accurately': 1,
+            'false_negatives': 0,
+            'triaged_within_one_day': 1,
+        },
+        datetime.date(2017, 9, contract_start_day): {
+            'count': 1,
+            'triaged_accurately': 1,
+            'false_negatives': 0,
+            'triaged_within_one_day': 1,
+        }
+    }
+
+    assert Report.get_stats_by_month(contract_start_day) == expected_stats

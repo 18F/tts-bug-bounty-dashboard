@@ -43,9 +43,16 @@
   </tfoot>
 </table>
 
+{% if contract_month_start_day != 1 %}
+<p>
+  Months are "contract months", which begin on the 
+  {{ contract_month_start_day_ordinal }} of each month.
+</p>
+{% endif %}
+
 {% if last_synced_at %}
 <p>
-  These statistics are partially based on a snapshot of HackerOne's
+  These statistics are based on a snapshot of HackerOne's
   data that was last updated {{ last_synced_at }}.
 </p>
 {% endif %}

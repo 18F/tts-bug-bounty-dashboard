@@ -131,7 +131,7 @@ class Report(models.Model):
         }
 
     @classmethod
-    def get_stats_by_month(cls):
+    def get_stats_by_month(cls, contract_month_start_day=1):
         """
         Get SLA stats, broken down by calendar month.
         """
@@ -144,7 +144,7 @@ class Report(models.Model):
 
         reports = cls.objects.filter(is_eligible_for_bounty=True, days_until_triage__gte=0)
         for report in reports:
-            month = datetime.date(report.created_at.year, report.created_at.month, 1)
+            month = dates.contract_month(report.created_at, contract_month_start_day)
             if month not in stats_by_month:
                 stats_by_month[month] = {
                     'count': 0,
