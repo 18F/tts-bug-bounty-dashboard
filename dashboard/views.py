@@ -26,6 +26,7 @@ def index(request):
     return render(request, 'index.html', {
         'last_synced_at': naturaltime(SingletonMetadata.load().last_synced_at),
         'stats': Report.get_stats(),
+        'stats_by_month': Report.get_stats_by_month(),
         'bookmarklet_url': get_bookmarklet_url(request)
     })
 

@@ -10,24 +10,39 @@
 
 {% block content %}
 <h2>Acceptable Quality Level Statistics</h2>
-<div class="usa-grid">
-  <div class="usa-width-one-fourth h1-stat">
-    <div class="h1-metric">{{ stats.count }}</div>
-    <div class="h1-label">Total reports</div>
-  </div>
-  <div class="usa-width-one-fourth h1-stat">
-    <div class="h1-metric">{{ percentage(stats.triaged_accurately, stats.count) }}</div>
-    <div class="h1-label">Triage accuracy</div>
-  </div>
-  <div class="usa-width-one-fourth h1-stat">
-    <div class="h1-metric">{{ percentage(stats.false_negatives, stats.count) }}</div>
-    <div class="h1-label">False negatives</div>
-  </div>
-  <div class="usa-width-one-fourth h1-stat">
-    <div class="h1-metric">{{ percentage(stats.triaged_within_one_day, stats.count) }}</div>
-    <div class="h1-label">Triaged in one workday</div>
-  </div>
-</div>
+
+<table class="usa-table-borderless h1-metrics-table">
+  <thead>
+    <tr>
+      <th scope="col">&nbsp;</th>
+      <th scope="col">Total reports</th>
+      <th scope="col">Triage accuracy</th>
+      <th scope="col">False Negatives</th>
+      <th scope="col">Triaged in one workday</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for month, month_stats in stats_by_month.items()|sort %}
+    <tr>
+      <th scope="row">{{ month.strftime("%B %Y") }}</th>
+      <td>{{ month_stats.count }}</td>
+      <td>{{ percentage(month_stats.triaged_accurately, month_stats.count) }}</td>
+      <td>{{ percentage(month_stats.false_negatives, month_stats.count) }}</td>
+      <td>{{ percentage(month_stats.triaged_within_one_day, month_stats.count) }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <th scope="row">All time</th>
+      <td>{{ stats.count }}</td>
+      <td>{{ percentage(stats.triaged_accurately, stats.count) }}</td>
+      <td>{{ percentage(stats.false_negatives, stats.count) }}</td>
+      <td>{{ percentage(stats.triaged_within_one_day, stats.count) }}</td>
+    </tr>
+  </tfoot>
+</table>
+
 {% if last_synced_at %}
 <p>
   These statistics are partially based on a snapshot of HackerOne's

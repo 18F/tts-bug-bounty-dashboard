@@ -142,7 +142,7 @@ class Report(models.Model):
         # should be OK.
         stats_by_month = {}
 
-        reports = cls.objects.filter(is_eligible_for_bounty=True)
+        reports = cls.objects.filter(is_eligible_for_bounty=True, days_until_triage__gte=0)
         for report in reports:
             month = datetime.date(report.created_at.year, report.created_at.month, 1)
             if month not in stats_by_month:
