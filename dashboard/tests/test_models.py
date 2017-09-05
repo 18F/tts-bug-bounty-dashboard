@@ -111,7 +111,7 @@ def test_singleton_metadata_works():
 
 @pytest.mark.django_db
 def test_get_stats_by_month():
-    
+
     # Make two tickets in September: one triaged on time, one not. Date
     # carefully chosen: a Monday, not Labor Day, to make the business day
     # calculation work out correctly.
@@ -143,7 +143,7 @@ def test_get_stats_by_month():
 
 @pytest.mark.django_db
 def test_get_stats_by_month_different_contract_start_day():
-    
+
     contract_start_day = 7
 
     # these two tickets are on two "sides" of a contract day, so we should get

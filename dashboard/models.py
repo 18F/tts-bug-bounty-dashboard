@@ -1,4 +1,3 @@
-import datetime
 from django.db import models
 
 from . import dates
@@ -119,9 +118,7 @@ class Report(models.Model):
         count = reports.count()
         accurates = reports.filter(is_accurate=True).count()
         false_negatives = reports.filter(is_false_negative=True).count()
-        triaged = reports.filter(days_until_triage__gte=0).count()
-        triaged_within_one_day = reports.filter(
-            days_until_triage__lte=1).count()
+        triaged_within_one_day = reports.filter(days_until_triage__lte=1).count()
 
         return {
             'count': count,
@@ -160,7 +157,7 @@ class Report(models.Model):
                 stats_by_month[month]['triaged_within_one_day'] += 1
 
         return stats_by_month
-                
+
 
 class SingletonMetadata(models.Model):
     '''
