@@ -129,6 +129,20 @@ class Report(models.Model):
             'triaged_within_one_day': triaged_within_one_day,
         }
 
+    @classmethod
+    def get_stats_by_month(cls):
+        """
+        Get SLA stats, broken down by calendar month.
+        """
+        # I could do this in SQL with date_trunc, but eventually this'll need
+        # to be contract-month, so like the 7th-7th or something, which AFAIK
+        # can't be done in SQL (and certainly not in Django). So just do this
+        # by hand. There are only a few hundred reports/month right now, so this
+        # should be OK.
+        stats_by_month = {}
+
+        return stats_by_month
+
 
 class SingletonMetadata(models.Model):
     '''

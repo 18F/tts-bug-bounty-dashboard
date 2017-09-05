@@ -108,3 +108,33 @@ def test_singleton_metadata_works():
     meta = SingletonMetadata.load()
     assert meta.id == 1
     assert meta.last_synced_at == right_now
+
+@pytest.mark.django_db
+def test_get_stats_by_month():
+    
+    # Make two tickets in September: one triaged on time, one not. Date
+    # carefully chosen: a Monday, not Labor Day, to make the business day
+    # calculation work out correctly.
+    created_at = datetime.datetime(2017, 9, 11, 14, 0, tzinfo=pytz.utc)
+    new_report(id=1, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=1))
+    new_report(id=2, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=2))
+
+    # And now two tickets in August, both triaged on time, similar criteria
+    created_at = datetime.datetime(2017, 8, 7, 14, 0, tzinfo=pytz.utc)
+    new_report(id=3, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=1))
+    new_report(id=4, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=1))
+
+    expected_stats = {
+        datetime.date(2017, 8, 1): {
+            'triage_accuracy': 100,
+            'false_negatives': 0,
+            'triaged_within_one_day': 100,
+        },
+        datetime.date(2017, 9, 1): {
+            'triage_accuracy': 100,
+            'false_negatives': 0,
+            'triaged_within_one_day': 50,
+        }
+    }
+
+    assert Report.get_stats_by_month() == expected_stats
