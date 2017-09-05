@@ -1,8 +1,10 @@
+import datetime
 import pytest
+import pytz
 from django.utils.timezone import now
 
 from .test_dates import create_dates_business_days_apart
-from ..models import Report, SingletonMetadata, percentage
+from ..models import Report, SingletonMetadata
 
 
 def new_report(**kwargs):
@@ -51,26 +53,19 @@ def test_save_sets_days_until_triage_to_value_if_closed():
     report.save()
     assert report.days_until_triage == 1
 
-def test_percentage_works_when_denominator_is_nonzero():
-    assert percentage(18, 100) == 18
-
-
-def test_percentage_works_when_denominator_is_zero():
-    assert percentage(18, 0, default=15) == 15
-
 
 @pytest.mark.django_db
 def test_get_stats_reports_triage_accuracy():
     new_report(id=1, is_accurate=True).save()
     new_report(id=2, is_accurate=False).save()
-    assert Report.get_stats()['triage_accuracy'] == 50
+    assert Report.get_stats()['triaged_accurately'] == 1
 
 
 @pytest.mark.django_db
 def test_get_stats_reports_false_negatives():
     new_report(id=1, is_false_negative=True).save()
     new_report(id=2, is_false_negative=False).save()
-    assert Report.get_stats()['false_negatives'] == 50
+    assert Report.get_stats()['false_negatives'] == 1
 
 
 @pytest.mark.django_db
@@ -78,20 +73,19 @@ def test_get_stats_reports_triaged_within_one_day():
     new_report(id=1).save()
     new_triaged_report(triage_days=1, id=2).save()
     new_triaged_report(triage_days=2, id=3).save()
-    assert Report.get_stats()['triaged_within_one_day'] == 50
+    assert Report.get_stats()['triaged_within_one_day'] == 1
 
 
 DEFAULT_STATS = {
-    'triage_accuracy': 100,
+    'count': 0,
+    'triaged_accurately': 0,
     'false_negatives': 0,
-    'triaged_within_one_day': 100,
+    'triaged_within_one_day': 0,
 }
-
 
 @pytest.mark.django_db
 def test_get_stats_returns_defaults_when_counts_are_zero():
     assert Report.get_stats() == DEFAULT_STATS
-
 
 @pytest.mark.django_db
 def test_get_stats_ignores_reports_ineligible_for_bounty():

@@ -3,15 +3,12 @@
   margin-bottom: 1em;
 }
 
-.h1-percentage {
+.h1-metric {
   font-size: 3rem;
-}
-
-.h1-percentage:after {
-  content: '%';
 }
 
 .h1-label {
   text-transform: uppercase;
   letter-spacing: 2px;
+  font-size: 2rem;
 }

@@ -3,12 +3,6 @@ from django.db import models
 from . import dates
 
 
-def percentage(n, d, default=0):
-    if d == 0:
-        return default
-    return int((float(n) / float(d)) * 100.0)
-
-
 class Report(models.Model):
     '''
     Represents a HackerOne report, along with our metadata.
@@ -117,6 +111,9 @@ class Report(models.Model):
 
     @classmethod
     def get_stats(cls):
+        """
+        Get aggregate SLA stats, all time.
+        """
         reports = cls.objects.filter(is_eligible_for_bounty=True)
         count = reports.count()
         accurates = reports.filter(is_accurate=True).count()
@@ -126,10 +123,10 @@ class Report(models.Model):
             days_until_triage__lte=1).count()
 
         return {
-            'triage_accuracy': percentage(accurates, count, 100),
-            'false_negatives': percentage(false_negatives, count, 0),
-            'triaged_within_one_day': percentage(triaged_within_one_day,
-                                                 triaged, 100)
+            'count': count,
+            'triaged_accurately': accurates,
+            'false_negatives': false_negatives,
+            'triaged_within_one_day': triaged_within_one_day,
         }
 
 

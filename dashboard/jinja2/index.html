@@ -1,18 +1,30 @@
 {% extends "base.html" %}
 
+{% macro percentage(n, count) -%}
+  {%- if count == 0 -%}
+    0
+  {%- else -%}
+    {{ (n / count * 100) | int }}%
+  {%- endif -%}
+{%- endmacro %}
+
 {% block content %}
 <h2>Acceptable Quality Level Statistics</h2>
 <div class="usa-grid">
-  <div class="usa-width-one-third h1-stat">
-    <div class="h1-percentage">{{ stats.triage_accuracy }}</div>
+  <div class="usa-width-one-fourth h1-stat">
+    <div class="h1-metric">{{ stats.count }}</div>
+    <div class="h1-label">Total reports</div>
+  </div>
+  <div class="usa-width-one-fourth h1-stat">
+    <div class="h1-metric">{{ percentage(stats.triaged_accurately, stats.count) }}</div>
     <div class="h1-label">Triage accuracy</div>
   </div>
-  <div class="usa-width-one-third h1-stat">
-    <div class="h1-percentage">{{ stats.false_negatives }}</div>
+  <div class="usa-width-one-fourth h1-stat">
+    <div class="h1-metric">{{ percentage(stats.false_negatives, stats.count) }}</div>
     <div class="h1-label">False negatives</div>
   </div>
-  <div class="usa-width-one-third h1-stat">
-    <div class="h1-percentage">{{ stats.triaged_within_one_day }}</div>
+  <div class="usa-width-one-fourth h1-stat">
+    <div class="h1-metric">{{ percentage(stats.triaged_within_one_day, stats.count) }}</div>
     <div class="h1-label">Triaged in one workday</div>
   </div>
 </div>
