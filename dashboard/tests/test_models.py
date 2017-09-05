@@ -116,24 +116,26 @@ def test_get_stats_by_month():
     # carefully chosen: a Monday, not Labor Day, to make the business day
     # calculation work out correctly.
     created_at = datetime.datetime(2017, 9, 11, 14, 0, tzinfo=pytz.utc)
-    new_report(id=1, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=1))
-    new_report(id=2, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=2))
+    new_report(id=1, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=1)).save()
+    new_report(id=2, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=2)).save()
 
     # And now two tickets in August, both triaged on time, similar criteria
     created_at = datetime.datetime(2017, 8, 7, 14, 0, tzinfo=pytz.utc)
-    new_report(id=3, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=1))
-    new_report(id=4, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=1))
+    new_report(id=3, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=1)).save()
+    new_report(id=4, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=1)).save()
 
     expected_stats = {
         datetime.date(2017, 8, 1): {
-            'triage_accuracy': 100,
+            'count': 2,
+            'triaged_accurately': 2,
             'false_negatives': 0,
-            'triaged_within_one_day': 100,
+            'triaged_within_one_day': 2,
         },
         datetime.date(2017, 9, 1): {
-            'triage_accuracy': 100,
+            'count': 2,
+            'triaged_accurately': 2,
             'false_negatives': 0,
-            'triaged_within_one_day': 50,
+            'triaged_within_one_day': 1,
         }
     }
 

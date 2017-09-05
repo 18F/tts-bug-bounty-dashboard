@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 
 from . import dates
@@ -141,8 +142,25 @@ class Report(models.Model):
         # should be OK.
         stats_by_month = {}
 
-        return stats_by_month
+        reports = cls.objects.filter(is_eligible_for_bounty=True)
+        for report in reports:
+            month = datetime.date(report.created_at.year, report.created_at.month, 1)
+            if month not in stats_by_month:
+                stats_by_month[month] = {
+                    'count': 0,
+                    'triaged_accurately': 0,
+                    'false_negatives': 0,
+                    'triaged_within_one_day': 0,
+                }
 
+            stats_by_month[month]['count'] += 1
+            stats_by_month[month]['triaged_accurately'] += report.is_accurate
+            stats_by_month[month]['false_negatives'] += report.is_false_negative
+            if report.days_until_triage <= 1:
+                stats_by_month[month]['triaged_within_one_day'] += 1
+
+        return stats_by_month
+                
 
 class SingletonMetadata(models.Model):
     '''
