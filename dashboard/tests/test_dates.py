@@ -62,6 +62,6 @@ def test_businesstimedelta_works():
     (date(2017, 12, 5),  3, date(2017, 12, 3), date(2018, 1, 2)),
 ])
 def test_contract_month(input_date, start_day, expected_month_first_day, expected_month_last_day):
-    first_day, last_day = contract_month(input_date, start_day=start_day) 
+    first_day, last_day = contract_month(input_date, start_day=start_day)
     assert first_day == expected_month_first_day
     assert last_day == expected_month_last_day
