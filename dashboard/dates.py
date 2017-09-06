@@ -76,12 +76,22 @@ def contract_month(date, start_day=1):
     Contracts run from some arbitrary day each month to month - for example,
     a "contract month" might be Jan 7 - Feb 6 - rather than calendar months.
 
-    Returns a datetime.date representing the start of the contract month.
+    Returns a (first_day, last_day) - datetime.dates representing the contract month.
     '''
-    month = datetime.date(date.year, date.month, start_day)
+    first_day = datetime.date(date.year, date.month, start_day)
     if date.day < start_day:
-        new_month = month.month - 1
+        new_month = first_day.month - 1
         if new_month == 0:
-            return month.replace(month.year - 1, 12)
-        return month.replace(month=new_month)
-    return month
+            first_day = first_day.replace(year=first_day.year - 1, month=12)
+        else:
+            first_day = first_day.replace(month=new_month)
+
+    last_day_year = first_day.year
+    last_day_month = first_day.month + 1
+    if last_day_month == 13:
+        last_day_month = 1
+        last_day_year += 1
+
+    last_day = datetime.date(last_day_year, last_day_month, start_day) - datetime.timedelta(days=1)
+
+    return first_day, last_day

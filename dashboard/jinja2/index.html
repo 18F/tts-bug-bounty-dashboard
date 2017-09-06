@@ -24,7 +24,14 @@
   <tbody>
   {% for month, month_stats in stats_by_month.items()|sort %}
     <tr>
-      <th scope="row">{{ month.strftime("%B %Y") }}</th>
+      <th scope="row">
+        {{ month.strftime("%B %Y") }}
+        {% if contract_month_start_day != 1 %}
+          <div class="quiet">
+            ({{ month.strftime("%B %-d") }} - {{ month_stats.last_day.strftime("%B %-d") }})
+          </div>
+        {% endif %}
+      </th>
       <td>{{ month_stats.count }}</td>
       <td>{{ percentage(month_stats.triaged_accurately, month_stats.count) }}</td>
       <td>{{ percentage(month_stats.false_negatives, month_stats.count) }}</td>
@@ -42,13 +49,6 @@
     </tr>
   </tfoot>
 </table>
-
-{% if contract_month_start_day != 1 %}
-<p>
-  Months are "contract months", which begin on the 
-  {{ contract_month_start_day_ordinal }} of each month.
-</p>
-{% endif %}
 
 {% if last_synced_at %}
 <p>

@@ -141,20 +141,22 @@ class Report(models.Model):
 
         reports = cls.objects.filter(is_eligible_for_bounty=True, days_until_triage__gte=0)
         for report in reports:
-            month = dates.contract_month(report.created_at, contract_month_start_day)
-            if month not in stats_by_month:
-                stats_by_month[month] = {
+            first_day, last_day = dates.contract_month(report.created_at, contract_month_start_day)
+            if first_day not in stats_by_month:
+                stats_by_month[first_day] = {
                     'count': 0,
                     'triaged_accurately': 0,
                     'false_negatives': 0,
                     'triaged_within_one_day': 0,
+                    'last_day': last_day,
+
                 }
 
-            stats_by_month[month]['count'] += 1
-            stats_by_month[month]['triaged_accurately'] += report.is_accurate
-            stats_by_month[month]['false_negatives'] += report.is_false_negative
+            stats_by_month[first_day]['count'] += 1
+            stats_by_month[first_day]['triaged_accurately'] += report.is_accurate
+            stats_by_month[first_day]['false_negatives'] += report.is_false_negative
             if report.days_until_triage <= 1:
-                stats_by_month[month]['triaged_within_one_day'] += 1
+                stats_by_month[first_day]['triaged_within_one_day'] += 1
 
         return stats_by_month
 

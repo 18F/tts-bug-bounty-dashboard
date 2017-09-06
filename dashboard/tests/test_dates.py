@@ -54,11 +54,14 @@ def test_businesstimedelta_works():
 
     assert businesstimedelta(a, b).days == 5
 
-@pytest.mark.parametrize("input_date, start_day, expected_contract_month", [
-    (date(2017, 6, 15), 7, date(2017, 6, 7)),
-    (date(2017, 6, 1),  7, date(2017, 5, 7)),
-    (date(2017, 7, 1),  2, date(2017, 6, 2)),
-    (date(2017, 1, 1),  3, date(2016, 12, 3)),
+@pytest.mark.parametrize("input_date, start_day, expected_month_first_day, expected_month_last_day", [
+    (date(2017, 6, 15),  7, date(2017, 6, 7),  date(2017, 7, 6)),
+    (date(2017, 6, 1),   6, date(2017, 5, 6),  date(2017, 6, 5)),
+    (date(2017, 7, 1),   2, date(2017, 6, 2),  date(2017, 7, 1)),
+    (date(2017, 1, 1),   3, date(2016, 12, 3), date(2017, 1, 2)),
+    (date(2017, 12, 5),  3, date(2017, 12, 3), date(2018, 1, 2)),
 ])
-def test_contract_month(input_date, start_day, expected_contract_month):
-    assert contract_month(input_date, start_day=start_day) == expected_contract_month
+def test_contract_month(input_date, start_day, expected_month_first_day, expected_month_last_day):
+    first_day, last_day = contract_month(input_date, start_day=start_day) 
+    assert first_day == expected_month_first_day
+    assert last_day == expected_month_last_day

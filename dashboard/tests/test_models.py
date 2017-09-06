@@ -130,12 +130,14 @@ def test_get_stats_by_month():
             'triaged_accurately': 2,
             'false_negatives': 0,
             'triaged_within_one_day': 2,
+            'last_day': datetime.date(2017, 8, 31)
         },
         datetime.date(2017, 9, 1): {
             'count': 2,
             'triaged_accurately': 2,
             'false_negatives': 0,
             'triaged_within_one_day': 1,
+            'last_day': datetime.date(2017, 9, 30)
         }
     }
 
@@ -160,12 +162,14 @@ def test_get_stats_by_month_different_contract_start_day():
             'triaged_accurately': 1,
             'false_negatives': 0,
             'triaged_within_one_day': 1,
+            'last_day': datetime.date(2017, 9, contract_start_day - 1)
         },
         datetime.date(2017, 9, contract_start_day): {
             'count': 1,
             'triaged_accurately': 1,
             'false_negatives': 0,
             'triaged_within_one_day': 1,
+            'last_day': datetime.date(2017, 10, contract_start_day - 1)
         }
     }
 
