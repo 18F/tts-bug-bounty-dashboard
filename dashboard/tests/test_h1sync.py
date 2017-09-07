@@ -45,6 +45,32 @@ class FakeStructuredScope:
         validator=attr.validators.instance_of(bool)
     )
 
+@attr.s
+class FakeWeakness:
+    '''
+    Fake version of the H1 Weakness object
+    '''
+    name = attr.ib(
+        default='XSS',
+        validator=attr.validators.instance_of(str)
+    )
+
+    description = attr.ib(
+        default='Cross-Site Scripting',
+        validator=attr.validators.instance_of(str)
+    )
+
+    external_id = attr.ib(
+        default=None,
+        validator=attr.validators.optional(
+            attr.validators.instance_of(str)
+        )
+    )
+
+    created_at = attr.ib(
+        default=attr.Factory(timezone.now),
+        validator=is_datetime
+    )
 
 @attr.s
 class FakeApiReport:
@@ -91,6 +117,12 @@ class FakeApiReport:
         default=attr.Factory(FakeStructuredScope),
         validator=attr.validators.optional(
             attr.validators.instance_of(FakeStructuredScope))
+    )
+
+    weakness = attr.ib(
+        default=None,
+        validator=attr.validators.optional(
+            attr.validators.instance_of(FakeWeakness))
     )
 
     issue_tracker_reference_url = attr.ib(
@@ -206,3 +238,9 @@ def test_sync_sets_issue_tracker_reference_url():
     url = "https://example.com/1"
     call_h1sync(reports=[FakeApiReport(id=1, title="foo", issue_tracker_reference_url=url)])
     assert Report.objects.get(id=1).issue_tracker_reference_url == url
+
+@pytest.mark.django_db()
+def test_sync_sets_weakness():
+    weakness = FakeWeakness(name="RCE")
+    call_h1sync(reports=[FakeApiReport(id=1, weakness=weakness)])
+    assert Report.objects.get(id=1).weakness == weakness.name

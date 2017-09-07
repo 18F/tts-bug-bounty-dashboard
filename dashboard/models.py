@@ -32,6 +32,7 @@ class Report(models.Model):
         'asset_type',
         'is_eligible_for_bounty',
         'issue_tracker_reference_url',
+        'weakness',
         'id',
     )
 
@@ -46,6 +47,12 @@ class Report(models.Model):
     ])
     asset_identifier = models.CharField(max_length=255, null=True)
     asset_type = models.CharField(max_length=255, null=True)
+
+    # In the H1 API, this is an object with an ID and a few other fields.
+    # However, I don't much see the point in that, but if I'm wrong this
+    # could be broken out to an FK(Weakness) in the future.
+    weakness = models.CharField(max_length=500, blank=True)
+
     is_eligible_for_bounty = models.NullBooleanField()
     issue_tracker_reference_url = models.URLField(max_length=500, blank=True)
     id = models.PositiveIntegerField(primary_key=True)
