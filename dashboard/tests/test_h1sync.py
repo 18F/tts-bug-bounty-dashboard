@@ -77,6 +77,11 @@ class FakeApiReport:
         validator=attr.validators.optional(is_datetime)
     )
 
+    disclosed_at = attr.ib(
+        default=None,
+        validator=attr.validators.optional(is_datetime)
+    )
+
     state = attr.ib(
         default='new',
         validator=attr.validators.in_(H1Report.STATES)
@@ -185,3 +190,9 @@ def test_it_creates_new_reports_in_db():
     call_h1sync(reports=[FakeApiReport(id=91, title='foo')])
     report = Report.objects.filter(id=91).first()
     assert report.title == 'foo'
+
+@pytest.mark.django_db
+def test_sync_sets_disclosed_at():
+    now = timezone.now()
+    call_h1sync(reports=[FakeApiReport(id=1, title="foo", disclosed_at=now)])
+    assert Report.objects.get(id=1).disclosed_at == now

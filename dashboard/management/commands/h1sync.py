@@ -37,6 +37,7 @@ class Command(BaseCommand):
                     created_at=h1_report.created_at,
                     triaged_at=h1_report.triaged_at,
                     closed_at=h1_report.closed_at,
+                    disclosed_at=h1_report.disclosed_at,
                     state=h1_report.state,
                     asset_identifier=scope and scope.asset_identifier,
                     asset_type=scope and scope.asset_type,
