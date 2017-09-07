@@ -93,6 +93,10 @@ class FakeApiReport:
             attr.validators.instance_of(FakeStructuredScope))
     )
 
+    issue_tracker_reference_url = attr.ib(
+        default="",
+        validator=attr.validators.instance_of(str)
+    )
 
 def call_h1sync(*args, reports=None):
     if reports is None:
@@ -196,3 +200,9 @@ def test_sync_sets_disclosed_at():
     now = timezone.now()
     call_h1sync(reports=[FakeApiReport(id=1, title="foo", disclosed_at=now)])
     assert Report.objects.get(id=1).disclosed_at == now
+
+@pytest.mark.django_db()
+def test_sync_sets_issue_tracker_reference_url():
+    url = "https://example.com/1"
+    call_h1sync(reports=[FakeApiReport(id=1, title="foo", issue_tracker_reference_url=url)])
+    assert Report.objects.get(id=1).issue_tracker_reference_url == url

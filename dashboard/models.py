@@ -31,6 +31,7 @@ class Report(models.Model):
         'asset_identifier',
         'asset_type',
         'is_eligible_for_bounty',
+        'issue_tracker_reference_url',
         'id',
     )
 
@@ -46,6 +47,7 @@ class Report(models.Model):
     asset_identifier = models.CharField(max_length=255, null=True)
     asset_type = models.CharField(max_length=255, null=True)
     is_eligible_for_bounty = models.NullBooleanField()
+    issue_tracker_reference_url = models.URLField(max_length=500, blank=True)
     id = models.PositiveIntegerField(primary_key=True)
 
     # Data we own/maintain
