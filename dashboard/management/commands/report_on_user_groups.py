@@ -16,6 +16,9 @@ class Command(BaseCommand):
         self.report_on_differences(program_list, 'members',
                                    lambda i: i['relationships']['user']['data']['attributes']['username'])
 
+        self.stdout.write('')
+        self.report_on_perm_differences(program_list)
+
     def find_programs(self):
         for program in settings.H1_PROGRAMS:
             client = HackerOneClient(program.api_username, program.api_password)
@@ -38,3 +41,26 @@ class Command(BaseCommand):
             if missing:
                 missing_names = ", ".join(missing)
                 self.stdout.write(f"Missing {rel_name} from {program_name}: {missing_names}")
+
+    def report_on_perm_differences(self, program_list):
+        perms = defaultdict(dict)
+
+        for program in program_list:
+            program_name = program['data']['attributes']['handle']
+            for member in program['data']['relationships']['members']['data']:
+                username = member['relationships']['user']['data']['attributes']['username']
+                permissions = member['attributes']['permissions']
+                perms[username][program_name] = set(permissions)
+
+        for user in perms:
+            handled = False
+            for program in perms[user]:
+                other_programs = set(perms[user].keys()) - set([program])
+                for other_program in other_programs:
+                    if perms[user][program] != perms[user][other_program]:
+                        self.stdout.write(f'Mismatching perms for {user}:')
+                        self.stdout.write(f'    {program}: {perms[user][program]}')
+                        self.stdout.write(f'    {other_program}: {perms[user][other_program]}')
+                        handled = True
+                if handled:
+                    break
