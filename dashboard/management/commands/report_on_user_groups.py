@@ -1,14 +1,7 @@
-from h1.client import HackerOneClient
 from collections import defaultdict
-
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from django.utils import timezone
-
-from django.conf import settings 
-
-from dashboard import h1
-from dashboard.models import Report, SingletonMetadata
-
+from h1.client import HackerOneClient
 
 class Command(BaseCommand):
     help = 'Report on user/group differences between multiple programs'
@@ -20,7 +13,8 @@ class Command(BaseCommand):
 
         self.report_on_differences(program_list, 'groups', lambda i: i['attributes']['name'])
         self.stdout.write('')
-        self.report_on_differences(program_list, 'members', lambda i: i['relationships']['user']['data']['attributes']['username'])
+        self.report_on_differences(program_list, 'members',
+                                   lambda i: i['relationships']['user']['data']['attributes']['username'])
 
     def find_programs(self):
         for program in settings.H1_PROGRAMS:
