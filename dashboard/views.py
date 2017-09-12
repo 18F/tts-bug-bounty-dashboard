@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-from django.contrib.humanize.templatetags.humanize import naturaltime
+from django.contrib.humanize.templatetags.humanize import naturaltime, ordinal
 
 from .models import Report, SingletonMetadata
 
@@ -23,10 +23,15 @@ def get_bookmarklet_url(request):
 
 @login_required
 def index(request):
+    contract_month_start_day = getattr(settings, 'SLA_METRICS_CONTRACT_START_DAY', 1)
+
     return render(request, 'index.html', {
         'last_synced_at': naturaltime(SingletonMetadata.load().last_synced_at),
         'stats': Report.get_stats(),
-        'bookmarklet_url': get_bookmarklet_url(request)
+        'stats_by_month': Report.get_stats_by_month(contract_month_start_day),
+        'bookmarklet_url': get_bookmarklet_url(request),
+        'contract_month_start_day': contract_month_start_day,
+        'contract_month_start_day_ordinal': ordinal(contract_month_start_day),
     })
 
 

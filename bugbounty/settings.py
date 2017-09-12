@@ -40,6 +40,8 @@ H1_PROGRAMS = ProgramConfiguration.parse_list_from_environ(
     environ=os.environ,
 )
 
+SLA_METRICS_CONTRACT_START_DAY = 7
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
