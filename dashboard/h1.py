@@ -25,6 +25,7 @@ class NewerReport(h1_models.Report):
     def _hydrate(self):
         super()._hydrate()
         self._make_relationship("structured_scope", self._hydrate_object)
+        self._make_relationship("weakness", self._hydrate_object)
 
 
 class StructuredScope(h1_models.HackerOneObject):
@@ -43,6 +44,21 @@ class StructuredScope(h1_models.HackerOneObject):
         self._make_attribute("asset_identifier", self._hydrate_verbatim)
         self._make_attribute("asset_type", self._hydrate_verbatim)
         self._make_attribute("eligible_for_bounty", self._hydrate_verbatim)
+
+
+class Weakness(h1_models.HackerOneObject):
+    '''
+    Represents a Weakness, see https://api.hackerone.com/docs/v1#weakness
+
+    Like StructuredScope, this isn't in the upstream package.
+    '''
+    TYPE = 'weakness'
+
+    def _hydrate(self):
+        self._make_attribute("name", self._hydrate_verbatim)
+        self._make_attribute("description", self._hydrate_verbatim)
+        self._make_attribute("external_id", self._hydrate_verbatim, optional=True)
+        self._make_attribute("created_at", self._hydrate_datetime)
 
 
 class ProgramConfiguration:

@@ -26,10 +26,13 @@ class Report(models.Model):
         'created_at',
         'triaged_at',
         'closed_at',
+        'disclosed_at',
         'state',
         'asset_identifier',
         'asset_type',
         'is_eligible_for_bounty',
+        'issue_tracker_reference_url',
+        'weakness',
         'id',
     )
 
@@ -38,12 +41,20 @@ class Report(models.Model):
     created_at = models.DateTimeField()
     triaged_at = models.DateTimeField(blank=True, null=True)
     closed_at = models.DateTimeField(blank=True, null=True)
+    disclosed_at = models.DateTimeField(blank=True, null=True)
     state = models.CharField(max_length=30, choices=[
         (name, name) for name in STATES
     ])
     asset_identifier = models.CharField(max_length=255, null=True)
     asset_type = models.CharField(max_length=255, null=True)
+
+    # In the H1 API, this is an object with an ID and a few other fields.
+    # However, I don't much see the point in that, but if I'm wrong this
+    # could be broken out to an FK(Weakness) in the future.
+    weakness = models.CharField(max_length=500, blank=True)
+
     is_eligible_for_bounty = models.NullBooleanField()
+    issue_tracker_reference_url = models.URLField(max_length=500, blank=True)
     id = models.PositiveIntegerField(primary_key=True)
 
     # Data we own/maintain
@@ -160,6 +171,23 @@ class Report(models.Model):
 
         return stats_by_month
 
+
+class Bounty(models.Model):
+    '''
+    A bounty awarded on a Report
+    '''
+    id = models.PositiveIntegerField(primary_key=True)
+    report = models.ForeignKey(Report, related_name="bounties")
+    amount = models.DecimalField(max_digits=8, decimal_places=2, help_text="USD")
+    bonus = models.DecimalField(max_digits=8, decimal_places=2, help_text="USD", blank=True, null=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        verbose_name = "bounty"
+        verbose_name_plural = "bounties"
+
+    def __str__(self):
+        return f"${self.amount} + ${self.bonus}" if self.bonus else f"${self.amount}"
 
 class SingletonMetadata(models.Model):
     '''

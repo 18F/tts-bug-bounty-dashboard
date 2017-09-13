@@ -2,6 +2,7 @@ import datetime
 import io
 import pytest
 import attr
+from decimal import Decimal
 from unittest import mock
 from django.utils import timezone
 from django.core.management import call_command
@@ -45,6 +46,32 @@ class FakeStructuredScope:
         validator=attr.validators.instance_of(bool)
     )
 
+@attr.s
+class FakeWeakness:
+    '''
+    Fake version of the H1 Weakness object
+    '''
+    name = attr.ib(
+        default='XSS',
+        validator=attr.validators.instance_of(str)
+    )
+
+    description = attr.ib(
+        default='Cross-Site Scripting',
+        validator=attr.validators.instance_of(str)
+    )
+
+    external_id = attr.ib(
+        default=None,
+        validator=attr.validators.optional(
+            attr.validators.instance_of(str)
+        )
+    )
+
+    created_at = attr.ib(
+        default=attr.Factory(timezone.now),
+        validator=is_datetime
+    )
 
 @attr.s
 class FakeApiReport:
@@ -77,6 +104,11 @@ class FakeApiReport:
         validator=attr.validators.optional(is_datetime)
     )
 
+    disclosed_at = attr.ib(
+        default=None,
+        validator=attr.validators.optional(is_datetime)
+    )
+
     state = attr.ib(
         default='new',
         validator=attr.validators.in_(H1Report.STATES)
@@ -88,6 +120,43 @@ class FakeApiReport:
             attr.validators.instance_of(FakeStructuredScope))
     )
 
+    weakness = attr.ib(
+        default=None,
+        validator=attr.validators.optional(
+            attr.validators.instance_of(FakeWeakness))
+    )
+
+    issue_tracker_reference_url = attr.ib(
+        default="",
+        validator=attr.validators.instance_of(str)
+    )
+
+    bounties = attr.ib(
+        default=attr.Factory(list),
+        validator=attr.validators.instance_of(list)
+    )
+
+@attr.s
+class FakeBounty:
+    id = attr.ib(
+        default=attr.Factory(make_unique_id),
+        validator=attr.validators.instance_of(int)
+    )
+
+    amount = attr.ib(
+        default=Decimal("50.00"),
+        validator=attr.validators.instance_of(Decimal)
+    )
+
+    bonus_amount = attr.ib(
+        default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(Decimal))
+    )
+
+    created_at = attr.ib(
+        default=attr.Factory(timezone.now),
+        validator=is_datetime
+    )
 
 def call_h1sync(*args, reports=None):
     if reports is None:
@@ -185,3 +254,44 @@ def test_it_creates_new_reports_in_db():
     call_h1sync(reports=[FakeApiReport(id=91, title='foo')])
     report = Report.objects.filter(id=91).first()
     assert report.title == 'foo'
+
+@pytest.mark.django_db
+def test_sync_sets_disclosed_at():
+    now = timezone.now()
+    call_h1sync(reports=[FakeApiReport(id=1, title="foo", disclosed_at=now)])
+    assert Report.objects.get(id=1).disclosed_at == now
+
+@pytest.mark.django_db()
+def test_sync_sets_issue_tracker_reference_url():
+    url = "https://example.com/1"
+    call_h1sync(reports=[FakeApiReport(id=1, title="foo", issue_tracker_reference_url=url)])
+    assert Report.objects.get(id=1).issue_tracker_reference_url == url
+
+@pytest.mark.django_db()
+def test_sync_sets_weakness():
+    weakness = FakeWeakness(name="RCE")
+    call_h1sync(reports=[FakeApiReport(id=1, weakness=weakness)])
+    assert Report.objects.get(id=1).weakness == weakness.name
+
+@pytest.mark.django_db()
+def test_sync_with_bounty():
+    bounty = FakeBounty(amount=Decimal("50.00"))
+    call_h1sync(reports=[FakeApiReport(id=1, bounties=[bounty])])
+    report = Report.objects.get(id=1)
+    bounties = report.bounties.all()
+    assert len(bounties) == 1
+    assert bounties[0].amount == Decimal("50.00")
+
+@pytest.mark.django_db()
+def test_sync_with_bounty_and_bonus():
+    bounty = FakeBounty(amount=Decimal("50.00"), bonus_amount=Decimal("5.00"))
+    call_h1sync(reports=[FakeApiReport(id=1, bounties=[bounty])])
+    assert Report.objects.get(id=1).bounties.all()[0].bonus == Decimal("5.00")
+
+@pytest.mark.django_db()
+def test_sync_multiple_bounties():
+    bounty1 = FakeBounty(amount=Decimal("50.00"))
+    bounty2 = FakeBounty(amount=Decimal("100.00"))
+    call_h1sync(reports=[FakeApiReport(id=1, bounties=[bounty1, bounty2])])
+    total_bounties = sum(b.amount for b in Report.objects.get(id=1).bounties.all())
+    assert total_bounties == Decimal("150.00")

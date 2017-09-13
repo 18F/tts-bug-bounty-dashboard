@@ -31,13 +31,18 @@ class Command(BaseCommand):
         for h1_report in listing:
             self.stdout.write(f"Synchronizing #{h1_report.id}.")
             scope = h1_report.structured_scope
-            Report.objects.update_or_create(
+
+            # Create or update the report
+            report, created = Report.objects.update_or_create(
                 defaults=dict(
                     title=h1_report.title,
                     created_at=h1_report.created_at,
                     triaged_at=h1_report.triaged_at,
                     closed_at=h1_report.closed_at,
+                    disclosed_at=h1_report.disclosed_at,
                     state=h1_report.state,
+                    issue_tracker_reference_url=h1_report.issue_tracker_reference_url or "",
+                    weakness=h1_report.weakness.name if h1_report.weakness else "",
                     asset_identifier=scope and scope.asset_identifier,
                     asset_type=scope and scope.asset_type,
                     is_eligible_for_bounty=scope and scope.eligible_for_bounty,
@@ -45,6 +50,15 @@ class Command(BaseCommand):
                 ),
                 id=h1_report.id
             )
+
+            # If there are awarded bounties, create/update them
+            for h1_bounty in h1_report.bounties:
+                report.bounties.update_or_create(id=h1_bounty.id, defaults=dict(
+                    amount=h1_bounty.amount,
+                    bonus=h1_bounty.bonus_amount,
+                    created_at=h1_bounty.created_at,
+                ))
+
             count += 1
         records = "records" if count != 1 else "record"
         self.stdout.write(f"Synchronized {count} {records} with HackerOne.")

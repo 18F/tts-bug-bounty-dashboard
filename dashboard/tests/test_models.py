@@ -1,10 +1,11 @@
 import datetime
 import pytest
 import pytz
+from decimal import Decimal
 from django.utils.timezone import now
 
 from .test_dates import create_dates_business_days_apart
-from ..models import Report, SingletonMetadata
+from ..models import Report, Bounty, SingletonMetadata
 
 
 def new_report(**kwargs):
@@ -174,3 +175,15 @@ def test_get_stats_by_month_different_contract_start_day():
     }
 
     assert Report.get_stats_by_month(contract_start_day) == expected_stats
+
+@pytest.mark.django_db
+def test_bounty_str_no_bonus():
+    r = new_report()
+    b = Bounty(report=r, created_at=now(), amount=Decimal("50.00"))
+    assert str(b) == "$50.00"
+
+@pytest.mark.django_db
+def test_bounty_str_with_bonus():
+    r = new_report()
+    b = Bounty(report=r, created_at=now(), amount=Decimal("50.00"), bonus=Decimal("5.00"))
+    assert str(b) == "$50.00 + $5.00"
