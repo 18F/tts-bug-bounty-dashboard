@@ -172,6 +172,23 @@ class Report(models.Model):
         return stats_by_month
 
 
+class Bounty(models.Model):
+    '''
+    A bounty awarded on a Report
+    '''
+    id = models.PositiveIntegerField(primary_key=True)
+    report = models.ForeignKey(Report, related_name="bounties")
+    amount = models.DecimalField(max_digits=8, decimal_places=2, help_text="USD")
+    bonus = models.DecimalField(max_digits=8, decimal_places=2, help_text="USD", blank=True, null=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        verbose_name = "bounty"
+        verbose_name_plural = "bounties"
+
+    def __str__(self):
+        return f"${self.amount} + ${self.bonus}" if self.bonus else f"${self.amount}"
+
 class SingletonMetadata(models.Model):
     '''
     A singleton model that stores metadata about the dashboard.
