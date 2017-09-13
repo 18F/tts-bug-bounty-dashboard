@@ -187,3 +187,13 @@ def test_bounty_str_with_bonus():
     r = new_report()
     b = Bounty(report=r, created_at=now(), amount=Decimal("50.00"), bonus=Decimal("5.00"))
     assert str(b) == "$50.00 + $5.00"
+
+@pytest.mark.django_db
+def test_sla_triage_date():
+    r = new_triaged_report(triage_days=4)
+    r.save()
+    assert r.days_until_triage == 4
+
+    r.sla_triaged_at = r.created_at + datetime.timedelta(days=1)
+    r.save()
+    assert r.days_until_triage == 1

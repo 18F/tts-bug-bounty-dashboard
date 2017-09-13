@@ -67,6 +67,11 @@ class Report(models.Model):
         help_text=('Whether HackerOne improperly classified the report '
                    'as invalid or duplicate.'),
     )
+    sla_triaged_at = models.DateTimeField(
+        blank=True, null=True,
+        help_text=("Date when we consider the issue triaged for SLA purposes, "
+                   "which may or may not agree with triaged_at.")
+    )
     days_until_triage = models.IntegerField(
         help_text=('Number of business days between a report being filed '
                    'and being triaged.'),
@@ -97,11 +102,20 @@ class Report(models.Model):
         # until triage. We can't just go by the triage date, though, because
         # some issues get moved directly from new to closed - for example,
         # issues marked as duplicate. So use either the triage date or the
-        # close date as the date that counts as "triaged"
+        # close date as the date that counts as "triaged". Also, some issues
+        # may have override triage dates in the sla_triaged_at field, and that
+        # trumps ther other fields if it exists.
 
-        triage_date = self.triaged_at or self.closed_at
+        if self.sla_triaged_at:
+            triage_date = self.sla_triaged_at
+        elif self.triaged_at:
+            triage_date = self.triaged_at
+        elif self.closed_at:
+            triage_date = self.closed_at
+        else:
+            triage_date = None
 
-        if self.created_at and triage_date:
+        if triage_date:
             self.days_until_triage = dates.businesstimedelta(self.created_at, triage_date).days
         else:
             self.days_until_triage = None
