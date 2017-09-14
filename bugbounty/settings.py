@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
 import dj_email_url
@@ -52,11 +51,6 @@ if DEBUG:
     os.environ.setdefault(
         'SECRET_KEY',
         'This is a fake secret key for development/debugging only'
-    )
-    os.environ.setdefault(
-        'DATABASE_URL',
-        (Path(BASE_DIR) / 'db.sqlite3').as_uri().replace('file:///',
-                                                         'sqlite:////')
     )
     os.environ.setdefault(
         'EMAIL_URL',
