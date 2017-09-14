@@ -4,6 +4,11 @@ jobs:
     working_directory: ~/tts-bug-bounty-dashboard
     docker:
       - image: circleci/python:3.6.1
+      - image: postgres:9.6
+        environment:
+          - POSTGRES_USER=pg
+          - POSTGRES_DB=db
+
     steps:
       - checkout
       - restore_cache:
@@ -18,6 +23,9 @@ jobs:
           paths:
             - "venv"
       - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
           command: |
             . venv/bin/activate
             flake8
@@ -26,6 +34,7 @@ jobs:
             H1_API_USERNAME: testing
             H1_API_PASSWORD: test123
             DEBUG: yup
+            DATABASE_URL: postgres://pg:@127.0.0.1:5432/db
 
       - store_artifacts:
           path: test-reports/
