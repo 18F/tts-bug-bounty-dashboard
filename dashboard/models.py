@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import HStoreField
 
 from . import dates
 
@@ -188,7 +189,9 @@ class Report(models.Model):
 
 class Bounty(models.Model):
     '''
-    A bounty awarded on a Report
+    A bounty awarded on a Report.
+
+    See https://api.hackerone.com/docs/v1#bounty
     '''
     id = models.PositiveIntegerField(primary_key=True)
     report = models.ForeignKey(Report, related_name="bounties")
@@ -202,6 +205,35 @@ class Bounty(models.Model):
 
     def __str__(self):
         return f"${self.amount} + ${self.bonus}" if self.bonus else f"${self.amount}"
+
+
+class Activity(models.Model):
+    """
+    Represents an action performed on a report.
+
+    See https://api.hackerone.com/docs/v1#activity
+
+    HackerOne's API represents these with a bunch of different object types
+    (e.g. ActivityAgreedOnGoingPublic, ActivityComment, etc). Since these have
+    mostly-the-same fields, and since we don't want to have to update our
+    database as new activity types get added, we represent this here with a
+    single model. We'll use hstore to store the fields that different fields
+    on each model.
+    """
+    id = models.PositiveIntegerField(primary_key=True)
+    report = models.ForeignKey(Report, related_name="activities")
+    type = models.CharField(max_length=150)
+    created_at = models.DateTimeField()
+    attributes = HStoreField(default=dict)
+
+    class Meta:
+        verbose_name = "activity"
+        verbose_name_plural = "activities"
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.created_at}: {self.created_at}"
+
 
 class SingletonMetadata(models.Model):
     '''

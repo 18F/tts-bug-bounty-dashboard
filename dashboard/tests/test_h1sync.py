@@ -136,6 +136,14 @@ class FakeApiReport:
         validator=attr.validators.instance_of(list)
     )
 
+    activities = attr.ib(
+        default=attr.Factory(list),
+        validator=attr.validators.instance_of(list)
+    )
+
+    def _fetch_canonical(self):
+        pass
+
 @attr.s
 class FakeBounty:
     id = attr.ib(
@@ -156,6 +164,29 @@ class FakeBounty:
     created_at = attr.ib(
         default=attr.Factory(timezone.now),
         validator=is_datetime
+    )
+
+@attr.s
+class FakeUser:
+    username = attr.ib(default="jane", validator=attr.validators.instance_of(str))
+
+@attr.s
+class FakeActivity:
+    TYPE = attr.ib(
+        default="activity-comment",
+        validator=attr.validators.instance_of(str)
+    )
+    id = attr.ib(
+        default=attr.Factory(make_unique_id),
+        validator=attr.validators.instance_of(int)
+    )
+    created_at = attr.ib(
+        default=attr.Factory(timezone.now),
+        validator=is_datetime
+    )
+    actor = attr.ib(
+        default=attr.Factory(FakeUser),
+        validator=attr.validators.instance_of(FakeUser)
     )
 
 def call_h1sync(*args, reports=None):
@@ -295,3 +326,18 @@ def test_sync_multiple_bounties():
     call_h1sync(reports=[FakeApiReport(id=1, bounties=[bounty1, bounty2])])
     total_bounties = sum(b.amount for b in Report.objects.get(id=1).bounties.all())
     assert total_bounties == Decimal("150.00")
+
+@pytest.mark.django_db()
+def test_sync_activities():
+    activities = [
+        FakeActivity(TYPE="activity-comment"),
+        FakeActivity(TYPE="activity-triaged"),
+        FakeActivity(TYPE="activity-bounty-awarded"),
+        FakeActivity(TYPE="activity-bug-resolved")
+    ]
+    call_h1sync(reports=[FakeApiReport(id=1, activities=activities)])
+    r = Report.objects.get(id=1)
+
+    expected_types = [act.TYPE for act in activities]
+    act_types = [act.type for act in r.activities.all()]
+    assert act_types == expected_types

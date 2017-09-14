@@ -59,6 +59,17 @@ class Command(BaseCommand):
                     created_at=h1_bounty.created_at,
                 ))
 
+            # Sync activities
+            # The H1 API doesn't return activities on a search, which is what
+            # find_reports() does, so we have to re-fetch the resource. This
+            # slows things down, grrr, but... oh well.
+            h1_report._fetch_canonical()
+            for h1_activity in h1_report.activities:
+                report.activities.update_or_create(id=h1_activity.id, defaults=dict(
+                    type=h1_activity.TYPE,
+                    created_at=h1_activity.created_at,
+                ))
+
             count += 1
         records = "records" if count != 1 else "record"
         self.stdout.write(f"Synchronized {count} {records} with HackerOne.")
