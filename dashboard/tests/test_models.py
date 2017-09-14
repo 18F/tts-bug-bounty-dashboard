@@ -204,7 +204,7 @@ def test_activity_actor():
 
 def test_activity_actor_missing():
     a = Activity()
-    assert a.actor == None
+    assert a.actor is None
 
 def test_activity_group():
     a = Activity(attributes={'H1_group': '18f'})
@@ -212,5 +212,4 @@ def test_activity_group():
 
 def test_activity_group_missing():
     a = Activity()
-    assert a.group == None
-
+    assert a.group is None
