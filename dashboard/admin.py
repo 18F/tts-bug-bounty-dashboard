@@ -20,7 +20,7 @@ class TriagedWithinSLAFilter(admin.SimpleListFilter):
 
 class ActivityInline(admin.TabularInline):
     model = Activity
-    fields = readonly_fields = ['type', 'created_at']
+    fields = readonly_fields = ['type', 'created_at', 'actor', 'group']
     can_delete = False
     extra = 0
 

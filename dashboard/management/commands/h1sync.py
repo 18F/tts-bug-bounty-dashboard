@@ -65,10 +65,31 @@ class Command(BaseCommand):
             # slows things down, grrr, but... oh well.
             h1_report._fetch_canonical()
             for h1_activity in h1_report.activities:
+
+                # Since there are a bunch of activity types that we don't want
+                # to model individually, just stuff all the attributes into an
+                # hstore.
+                attributes = h1_activity.raw_data["attributes"].copy()
+
+                # Relationships are a bit special since they don't
+                # show up in attributes. Store them with an H1_ prefix so they
+                # don't conflict.
+                if hasattr(h1_activity, 'actor'):
+                    attributes['H1_actor_type'] = h1_activity.actor.TYPE
+                    if hasattr(h1_activity.actor, 'username'):
+                        attributes['H1_actor'] = h1_activity.actor.username
+                    elif hasattr(h1_activity.actor, 'name'):
+                        attributes['H1_actor'] = h1_activity.actor.name
+                    else:
+                        raise ValueError(f"Don't know how to store actor: {h1_activity.actor}")
+
+                if hasattr(h1_activity, 'group'):
+                    attributes['H1_group'] = h1_activity.group.name
+
                 report.activities.update_or_create(id=h1_activity.id, defaults=dict(
                     type=h1_activity.TYPE,
                     created_at=h1_activity.created_at,
-                    attributes=h1_activity.raw_data["attributes"]
+                    attributes=attributes,
                 ))
 
             count += 1

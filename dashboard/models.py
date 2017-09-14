@@ -231,6 +231,17 @@ class Activity(models.Model):
         verbose_name_plural = "activities"
         ordering = ["created_at"]
 
+    @property
+    def actor(self):
+        if "H1_actor" in self.attributes:
+            return "<{H1_actor_type}: {H1_actor}>".format(**self.attributes)
+        else:
+            return None
+
+    @property
+    def group(self):
+        return self.attributes.get('H1_group', None)
+
 class SingletonMetadata(models.Model):
     '''
     A singleton model that stores metadata about the dashboard.

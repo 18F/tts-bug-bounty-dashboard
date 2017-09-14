@@ -168,10 +168,17 @@ class FakeBounty:
 
 @attr.s
 class FakeUser:
+    TYPE = 'user'
     username = attr.ib(default="jane", validator=attr.validators.instance_of(str))
 
 @attr.s
+class FakeGroup:
+    TYPE = 'group'
+    name = attr.ib(default="TTS", validator=attr.validators.instance_of(str))
+
+@attr.s
 class FakeActivity:
+
     TYPE = attr.ib(
         default="activity-comment",
         validator=attr.validators.instance_of(str)
@@ -188,7 +195,6 @@ class FakeActivity:
         default=attr.Factory(FakeUser),
         validator=attr.validators.instance_of(FakeUser)
     )
-
     attributes = attr.ib(
         default=attr.Factory(dict),
         validator=attr.validators.instance_of(dict)
@@ -198,6 +204,12 @@ class FakeActivity:
     def raw_data(self):
         return {"attributes": self.attributes}
 
+@attr.s
+class FakeActivityWithGroup(FakeActivity):
+    group = attr.ib(
+        default=attr.Factory(FakeGroup),
+        validator=attr.validators.optional(attr.validators.instance_of(FakeGroup))
+    )
 
 def call_h1sync(*args, reports=None):
     if reports is None:
@@ -354,8 +366,40 @@ def test_sync_activities():
 
 @pytest.mark.django_db()
 def test_sync_activity_attributes():
-    a = FakeActivity(TYPE="activity-comment", attributes={'foo': 'bar'})
+    a = FakeActivity(
+        TYPE="activity-comment",
+        attributes={'foo': 'bar'},
+        actor=FakeUser(username='jane')
+    )
     call_h1sync(reports=[FakeApiReport(id=1, activities=[a])])
 
     r = Report.objects.get(id=1)
-    assert r.activities.all()[0].attributes == a.attributes
+    assert r.activities.all()[0].attributes == {
+        'foo': 'bar',
+        'H1_actor_type': 'user',
+        'H1_actor': 'jane'
+    }
+
+
+@pytest.mark.django_db()
+def test_sync_activity_actor():
+    a = FakeActivity(
+        TYPE="activity-comment",
+        attributes={'foo': 'bar'},
+        actor=FakeUser(username='joe')
+    )
+    call_h1sync(reports=[FakeApiReport(id=1, activities=[a])])
+
+    r = Report.objects.get(id=1)
+    assert r.activities.all()[0].attributes == {
+        'foo': 'bar',
+        'H1_actor_type': 'user',
+        'H1_actor': 'joe'
+    }
+
+@pytest.mark.django_db()
+def test_sync_activity_group():
+    a = FakeActivityWithGroup(TYPE="activity-comment", group=FakeGroup(name='TTS'))
+    call_h1sync(reports=[FakeApiReport(id=1, activities=[a])])
+    r = Report.objects.get(id=1)
+    assert r.activities.all()[0].attributes['H1_group'] == 'TTS'

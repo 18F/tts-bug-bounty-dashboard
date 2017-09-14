@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.utils.timezone import now
 
 from .test_dates import create_dates_business_days_apart
-from ..models import Report, Bounty, SingletonMetadata
+from ..models import Report, Bounty, Activity, SingletonMetadata
 
 
 def new_report(**kwargs):
@@ -197,3 +197,20 @@ def test_sla_triage_date():
     r.sla_triaged_at = r.created_at + datetime.timedelta(days=1)
     r.save()
     assert r.days_until_triage == 1
+
+def test_activity_actor():
+    a = Activity(attributes={'H1_actor': 'joe', 'H1_actor_type': 'user'})
+    assert a.actor == "<user: joe>"
+
+def test_activity_actor_missing():
+    a = Activity()
+    assert a.actor == None
+
+def test_activity_group():
+    a = Activity(attributes={'H1_group': '18f'})
+    assert a.group == '18f'
+
+def test_activity_group_missing():
+    a = Activity()
+    assert a.group == None
+
