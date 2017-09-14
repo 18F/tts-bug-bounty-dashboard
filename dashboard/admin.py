@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Report, SingletonMetadata
+from .models import Report, Activity, SingletonMetadata
 
 
 class TriagedWithinSLAFilter(admin.SimpleListFilter):
@@ -18,6 +18,14 @@ class TriagedWithinSLAFilter(admin.SimpleListFilter):
         elif self.value() == "no":
             return queryset.filter(days_until_triage__gt=1)
 
+class ActivityInline(admin.TabularInline):
+    model = Activity
+    fields = readonly_fields = ['type', 'created_at']
+    can_delete = False
+    extra = 0
+
+    def has_add_permission(self, request):
+        return False
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
@@ -47,6 +55,8 @@ class ReportAdmin(admin.ModelAdmin):
         'is_false_negative',
         'is_eligible_for_bounty',
     )
+
+    inlines = [ActivityInline]
 
     def has_add_permission(self, request):
         return False

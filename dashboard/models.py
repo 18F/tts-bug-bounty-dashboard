@@ -231,10 +231,6 @@ class Activity(models.Model):
         verbose_name_plural = "activities"
         ordering = ["created_at"]
 
-    def __str__(self):
-        return f"{self.created_at}: {self.created_at}"
-
-
 class SingletonMetadata(models.Model):
     '''
     A singleton model that stores metadata about the dashboard.
