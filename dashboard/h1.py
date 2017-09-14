@@ -61,6 +61,21 @@ class Weakness(h1_models.HackerOneObject):
         self._make_attribute("created_at", self._hydrate_datetime)
 
 
+# A handful of missing activity sub-types:
+
+class ActivityReassignedToTeam(h1_models.ActivityBase):
+    TYPE = "activity-reassigned-to-team"
+
+class ActivityChangedScope(h1_models.ActivityBase):
+    TYPE = "activity-changed-scope"
+
+    def _activity_hydrate(self):
+        self._make_relationship("old_scope", self._hydrate_object)
+        self._make_relationship("new_scope", self._hydrate_object)
+
+class ActivityNobodyAssignedToBug(h1_models.ActivityBase):
+    TYPE = "activity-nobody-assigned-to-bug"
+
 class ProgramConfiguration:
     '''
     Represents a HackerOne program's configuration, e.g. the credentials
