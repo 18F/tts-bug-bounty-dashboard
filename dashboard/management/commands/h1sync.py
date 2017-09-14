@@ -68,6 +68,7 @@ class Command(BaseCommand):
                 report.activities.update_or_create(id=h1_activity.id, defaults=dict(
                     type=h1_activity.TYPE,
                     created_at=h1_activity.created_at,
+                    attributes=h1_activity.raw_data["attributes"]
                 ))
 
             count += 1

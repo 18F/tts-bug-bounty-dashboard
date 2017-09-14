@@ -189,6 +189,16 @@ class FakeActivity:
         validator=attr.validators.instance_of(FakeUser)
     )
 
+    attributes = attr.ib(
+        default=attr.Factory(dict),
+        validator=attr.validators.instance_of(dict)
+    )
+
+    @property
+    def raw_data(self):
+        return {"attributes": self.attributes}
+
+
 def call_h1sync(*args, reports=None):
     if reports is None:
         reports = []
@@ -341,3 +351,11 @@ def test_sync_activities():
     expected_types = [act.TYPE for act in activities]
     act_types = [act.type for act in r.activities.all()]
     assert act_types == expected_types
+
+@pytest.mark.django_db()
+def test_sync_activity_attributes():
+    a = FakeActivity(TYPE="activity-comment", attributes={'foo': 'bar'})
+    call_h1sync(reports=[FakeApiReport(id=1, activities=[a])])
+
+    r = Report.objects.get(id=1)
+    assert r.activities.all()[0].attributes == a.attributes
