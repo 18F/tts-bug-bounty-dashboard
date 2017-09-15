@@ -24,7 +24,7 @@ def new_triaged_report(triage_days=1, **kwargs):
     created_at, triaged_at = create_dates_business_days_apart(triage_days)
     return new_report(
         created_at=created_at,
-        triaged_at=triaged_at,
+        sla_triaged_at=triaged_at,
         **kwargs
     )
 
@@ -36,7 +36,7 @@ def test_get_absolute_url_works():
 
 @pytest.mark.django_db
 def test_save_sets_days_until_triage_to_none_if_untriaged():
-    r = new_report(triaged_at=None)
+    r = new_report(sla_triaged_at=None)
     r.save()
     assert r.days_until_triage is None
 
@@ -46,13 +46,6 @@ def test_save_sets_days_until_triage_to_value_if_triaged():
     r = new_triaged_report(triage_days=1)
     r.save()
     assert r.days_until_triage == 1
-
-@pytest.mark.django_db
-def test_save_sets_days_until_triage_to_value_if_closed():
-    created_at, closed_at = create_dates_business_days_apart(1)
-    report = new_report(created_at=created_at, closed_at=closed_at)
-    report.save()
-    assert report.days_until_triage == 1
 
 
 @pytest.mark.django_db
@@ -117,13 +110,13 @@ def test_get_stats_by_month():
     # carefully chosen: a Monday, not Labor Day, to make the business day
     # calculation work out correctly.
     created_at = datetime.datetime(2017, 9, 11, 14, 0, tzinfo=pytz.utc)
-    new_report(id=1, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=1)).save()
-    new_report(id=2, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=2)).save()
+    new_report(id=1, created_at=created_at, sla_triaged_at=created_at + datetime.timedelta(days=1)).save()
+    new_report(id=2, created_at=created_at, sla_triaged_at=created_at + datetime.timedelta(days=2)).save()
 
     # And now two tickets in August, both triaged on time, similar criteria
     created_at = datetime.datetime(2017, 8, 7, 14, 0, tzinfo=pytz.utc)
-    new_report(id=3, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=1)).save()
-    new_report(id=4, created_at=created_at, triaged_at=created_at + datetime.timedelta(days=1)).save()
+    new_report(id=3, created_at=created_at, sla_triaged_at=created_at + datetime.timedelta(days=1)).save()
+    new_report(id=4, created_at=created_at, sla_triaged_at=created_at + datetime.timedelta(days=1)).save()
 
     expected_stats = {
         datetime.date(2017, 8, 1): {
@@ -152,10 +145,10 @@ def test_get_stats_by_month_different_contract_start_day():
     # these two tickets are on two "sides" of a contract day, so we should get
     # two months out of the stats.
     d1 = datetime.datetime(2017, 9, 11, 14, 0, tzinfo=pytz.utc)
-    new_report(id=1, created_at=d1, triaged_at=d1 + datetime.timedelta(days=1)).save()
+    new_report(id=1, created_at=d1, sla_triaged_at=d1 + datetime.timedelta(days=1)).save()
 
     d2 = datetime.datetime(2017, 9, 4, 14, 0, tzinfo=pytz.utc)
-    new_report(id=2, created_at=d2, triaged_at=d2 + datetime.timedelta(days=2)).save()
+    new_report(id=2, created_at=d2, sla_triaged_at=d2 + datetime.timedelta(days=2)).save()
 
     expected_stats = {
         datetime.date(2017, 8, contract_start_day): {
@@ -187,16 +180,6 @@ def test_bounty_str_with_bonus():
     r = new_report()
     b = Bounty(report=r, created_at=now(), amount=Decimal("50.00"), bonus=Decimal("5.00"))
     assert str(b) == "$50.00 + $5.00"
-
-@pytest.mark.django_db
-def test_sla_triage_date():
-    r = new_triaged_report(triage_days=4)
-    r.save()
-    assert r.days_until_triage == 4
-
-    r.sla_triaged_at = r.created_at + datetime.timedelta(days=1)
-    r.save()
-    assert r.days_until_triage == 1
 
 def test_activity_actor():
     a = Activity(attributes={'H1_actor': 'joe', 'H1_actor_type': 'user'})

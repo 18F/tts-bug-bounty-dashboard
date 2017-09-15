@@ -99,25 +99,9 @@ class Report(models.Model):
         return f'https://hackerone.com/reports/{self.id}'
 
     def _set_days_until_triage(self):
-        # For SLA metrics, we want to know how many business days from opening
-        # until triage. We can't just go by the triage date, though, because
-        # some issues get moved directly from new to closed - for example,
-        # issues marked as duplicate. So use either the triage date or the
-        # close date as the date that counts as "triaged". Also, some issues
-        # may have override triage dates in the sla_triaged_at field, and that
-        # trumps ther other fields if it exists.
-
         if self.sla_triaged_at:
-            triage_date = self.sla_triaged_at
-        elif self.triaged_at:
-            triage_date = self.triaged_at
-        elif self.closed_at:
-            triage_date = self.closed_at
-        else:
-            triage_date = None
-
-        if triage_date:
-            self.days_until_triage = dates.businesstimedelta(self.created_at, triage_date).days
+            btd = dates.businesstimedelta(self.created_at, self.sla_triaged_at)
+            self.days_until_triage = btd.days
         else:
             self.days_until_triage = None
 
