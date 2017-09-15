@@ -351,13 +351,14 @@ def test_sync_multiple_bounties():
 
 @pytest.mark.django_db()
 def test_sync_activities():
+    d = timezone.now()
     activities = [
-        FakeActivity(TYPE="activity-comment"),
-        FakeActivity(TYPE="activity-triaged"),
-        FakeActivity(TYPE="activity-bounty-awarded"),
-        FakeActivity(TYPE="activity-bug-resolved")
+        FakeActivity(TYPE="activity-comment", created_at=d + datetime.timedelta(hours=1)),
+        FakeActivity(TYPE="activity-triaged", created_at=d + datetime.timedelta(hours=2)),
+        FakeActivity(TYPE="activity-bounty-awarded", created_at=d + datetime.timedelta(hours=3)),
+        FakeActivity(TYPE="activity-bug-resolved", created_at=d + datetime.timedelta(hours=4)),
     ]
-    call_h1sync(reports=[FakeApiReport(id=1, activities=activities)])
+    call_h1sync(reports=[FakeApiReport(id=1, created_at=d, activities=activities)])
     r = Report.objects.get(id=1)
 
     expected_types = [act.TYPE for act in activities]

@@ -196,3 +196,24 @@ def test_activity_group():
 def test_activity_group_missing():
     a = Activity()
     assert a.group is None
+
+@pytest.mark.django_db
+def test_activity_sets_sla_triaged_at():
+    r = new_report()
+    r.save()
+    assert r.sla_triaged_at is None
+
+    # An activity that shouldn't update sla_triaged_at
+    d1 = now()
+    r.activities.create(id=1, type='activity-comment', created_at=d1)
+    assert r.sla_triaged_at is None
+
+    # And now one that should
+    d2 = d1 + datetime.timedelta(hours=3)
+    r.activities.create(id=2, type='activity-bug-not-applicable', created_at=d2)
+    assert r.sla_triaged_at == d2
+
+    # And now another aciivity that would update the date, if it wasn't already set
+    d3 = d2 + datetime.timedelta(hours=3)
+    r.activities.create(id=3, type='activity-bug-resolved', created_at=d3)
+    assert r.sla_triaged_at == d2

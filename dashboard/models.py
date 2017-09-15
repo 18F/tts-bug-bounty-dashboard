@@ -99,6 +99,9 @@ class Report(models.Model):
         return f'https://hackerone.com/reports/{self.id}'
 
     def _set_days_until_triage(self):
+        """
+        Pre-calculate triage business days, so we can do queries against it.
+        """
         if self.sla_triaged_at:
             btd = dates.businesstimedelta(self.created_at, self.sla_triaged_at)
             self.days_until_triage = btd.days
@@ -225,6 +228,25 @@ class Activity(models.Model):
     @property
     def group(self):
         return self.attributes.get('H1_group', None)
+
+    # List of activity types that indicate that an issue has been triaged
+    # (for SLA purposes)
+    _ACTIVITY_TRIAGE_INDICATOR_TYPES = (
+        'activity-bug-duplicate',
+        'activity-bug-informative',
+        'activity-bug-needs-more-info',
+        'activity-bug-not-applicable',
+        'activity-bug-resolved',
+        'activity-bug-spam',
+        'activity-bug-triaged'
+    )
+
+    def save(self, *args, **kwargs):
+        if self.type in self._ACTIVITY_TRIAGE_INDICATOR_TYPES:
+            if self.report.sla_triaged_at is None or self.report.sla_triaged_at > self.created_at:
+                self.report.sla_triaged_at = self.created_at
+                self.report.save()
+        return super().save(*args, **kwargs)
 
 class SingletonMetadata(models.Model):
     '''
