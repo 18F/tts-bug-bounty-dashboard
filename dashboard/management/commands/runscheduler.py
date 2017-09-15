@@ -25,4 +25,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         while True:
             self.run_cmd('h1sync')
-            self.sleep(60)
+            self.sleep(600)
