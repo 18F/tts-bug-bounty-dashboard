@@ -41,6 +41,7 @@ class ReportAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = Report.H1_OWNED_FIELDS + (
+        'sla_triaged_at',
         'days_until_triage',
         'last_nagged_at',
         'next_nag_at',

@@ -217,3 +217,29 @@ def test_activity_sets_sla_triaged_at():
     d3 = d2 + datetime.timedelta(hours=3)
     r.activities.create(id=3, type='activity-bug-resolved', created_at=d3)
     assert r.sla_triaged_at == d2
+
+def create_activity_and_assign_to_group(group_name):
+    report = new_report()
+    report.save()
+
+    date = now()
+    report.activities.create(id=1,
+                             type='activity-group-assigned-to-bug',
+                             created_at=date,
+                             attributes={'H1_group': group_name})
+    return date, report
+
+@pytest.mark.django_db
+def test_assign_to_group_sets_sla_triaged_at():
+    """Assigning to a group sets sla_triaged_at"""
+    date, report = create_activity_and_assign_to_group("TTS")
+    assert report.sla_triaged_at == date
+
+@pytest.mark.django_db
+def test_assign_to_h1_group_does_not_set_sla_triaged_at():
+    """
+    Assigning to a HackerOne group - indicated by an "H1-" prefix -- does not
+    set sla_triaged_at
+    """
+    date, report = create_activity_and_assign_to_group("H1-triage")
+    assert report.sla_triaged_at is None

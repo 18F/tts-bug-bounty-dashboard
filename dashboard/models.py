@@ -241,11 +241,24 @@ class Activity(models.Model):
         'activity-bug-triaged'
     )
 
+    # Prefix indicating that a group is a HackerOne triage team group
+    _H1_GROUP_NAME_PREFIX = 'H1-'
+
     def save(self, *args, **kwargs):
+        # Mark tickets as triaged when one of the activities above happens
         if self.type in self._ACTIVITY_TRIAGE_INDICATOR_TYPES:
             if self.report.sla_triaged_at is None or self.report.sla_triaged_at > self.created_at:
                 self.report.sla_triaged_at = self.created_at
                 self.report.save()
+
+        # When a ticket is assigned to a group, mark it as triaged if the group
+        # isn't a HackerOne group, indicated by _H1_GROUP_NAME_PREFIX
+        elif self.type == 'activity-group-assigned-to-bug':
+            if not self.attributes['H1_group'].startswith(self._H1_GROUP_NAME_PREFIX):
+                if self.report.sla_triaged_at is None or self.report.sla_triaged_at > self.created_at:
+                    self.report.sla_triaged_at = self.created_at
+                    self.report.save()
+
         return super().save(*args, **kwargs)
 
 class SingletonMetadata(models.Model):
