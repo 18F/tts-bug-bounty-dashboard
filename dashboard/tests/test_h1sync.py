@@ -136,6 +136,14 @@ class FakeApiReport:
         validator=attr.validators.instance_of(list)
     )
 
+    activities = attr.ib(
+        default=attr.Factory(list),
+        validator=attr.validators.instance_of(list)
+    )
+
+    def _fetch_canonical(self):
+        pass
+
 @attr.s
 class FakeBounty:
     id = attr.ib(
@@ -156,6 +164,51 @@ class FakeBounty:
     created_at = attr.ib(
         default=attr.Factory(timezone.now),
         validator=is_datetime
+    )
+
+@attr.s
+class FakeUser:
+    TYPE = 'user'
+    username = attr.ib(default="jane", validator=attr.validators.instance_of(str))
+
+@attr.s
+class FakeGroup:
+    TYPE = 'group'
+    name = attr.ib(default="TTS", validator=attr.validators.instance_of(str))
+
+@attr.s
+class FakeActivity:
+
+    TYPE = attr.ib(
+        default="activity-comment",
+        validator=attr.validators.instance_of(str)
+    )
+    id = attr.ib(
+        default=attr.Factory(make_unique_id),
+        validator=attr.validators.instance_of(int)
+    )
+    created_at = attr.ib(
+        default=attr.Factory(timezone.now),
+        validator=is_datetime
+    )
+    actor = attr.ib(
+        default=attr.Factory(FakeUser),
+        validator=attr.validators.instance_of(FakeUser)
+    )
+    attributes = attr.ib(
+        default=attr.Factory(dict),
+        validator=attr.validators.instance_of(dict)
+    )
+
+    @property
+    def raw_data(self):
+        return {"attributes": self.attributes}
+
+@attr.s
+class FakeActivityWithGroup(FakeActivity):
+    group = attr.ib(
+        default=attr.Factory(FakeGroup),
+        validator=attr.validators.optional(attr.validators.instance_of(FakeGroup))
     )
 
 def call_h1sync(*args, reports=None):
@@ -295,3 +348,59 @@ def test_sync_multiple_bounties():
     call_h1sync(reports=[FakeApiReport(id=1, bounties=[bounty1, bounty2])])
     total_bounties = sum(b.amount for b in Report.objects.get(id=1).bounties.all())
     assert total_bounties == Decimal("150.00")
+
+@pytest.mark.django_db()
+def test_sync_activities():
+    d = timezone.now()
+    activities = [
+        FakeActivity(TYPE="activity-comment", created_at=d + datetime.timedelta(hours=1)),
+        FakeActivity(TYPE="activity-triaged", created_at=d + datetime.timedelta(hours=2)),
+        FakeActivity(TYPE="activity-bounty-awarded", created_at=d + datetime.timedelta(hours=3)),
+        FakeActivity(TYPE="activity-bug-resolved", created_at=d + datetime.timedelta(hours=4)),
+    ]
+    call_h1sync(reports=[FakeApiReport(id=1, created_at=d, activities=activities)])
+    r = Report.objects.get(id=1)
+
+    expected_types = [act.TYPE for act in activities]
+    act_types = [act.type for act in r.activities.all()]
+    assert act_types == expected_types
+
+@pytest.mark.django_db()
+def test_sync_activity_attributes():
+    a = FakeActivity(
+        TYPE="activity-comment",
+        attributes={'foo': 'bar'},
+        actor=FakeUser(username='jane')
+    )
+    call_h1sync(reports=[FakeApiReport(id=1, activities=[a])])
+
+    r = Report.objects.get(id=1)
+    assert r.activities.all()[0].attributes == {
+        'foo': 'bar',
+        'H1_actor_type': 'user',
+        'H1_actor': 'jane'
+    }
+
+
+@pytest.mark.django_db()
+def test_sync_activity_actor():
+    a = FakeActivity(
+        TYPE="activity-comment",
+        attributes={'foo': 'bar'},
+        actor=FakeUser(username='joe')
+    )
+    call_h1sync(reports=[FakeApiReport(id=1, activities=[a])])
+
+    r = Report.objects.get(id=1)
+    assert r.activities.all()[0].attributes == {
+        'foo': 'bar',
+        'H1_actor_type': 'user',
+        'H1_actor': 'joe'
+    }
+
+@pytest.mark.django_db()
+def test_sync_activity_group():
+    a = FakeActivityWithGroup(TYPE="activity-comment", group=FakeGroup(name='TTS'))
+    call_h1sync(reports=[FakeApiReport(id=1, activities=[a])])
+    r = Report.objects.get(id=1)
+    assert r.activities.all()[0].attributes['H1_group'] == 'TTS'

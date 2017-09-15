@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import HStoreField
 
 from . import dates
 
@@ -67,6 +68,11 @@ class Report(models.Model):
         help_text=('Whether HackerOne improperly classified the report '
                    'as invalid or duplicate.'),
     )
+    sla_triaged_at = models.DateTimeField(
+        blank=True, null=True,
+        help_text=("Date when we consider the issue triaged for SLA purposes, "
+                   "which may or may not agree with triaged_at.")
+    )
     days_until_triage = models.IntegerField(
         help_text=('Number of business days between a report being filed '
                    'and being triaged.'),
@@ -93,16 +99,12 @@ class Report(models.Model):
         return f'https://hackerone.com/reports/{self.id}'
 
     def _set_days_until_triage(self):
-        # For SLA metrics, we want to know how many business days from opening
-        # until triage. We can't just go by the triage date, though, because
-        # some issues get moved directly from new to closed - for example,
-        # issues marked as duplicate. So use either the triage date or the
-        # close date as the date that counts as "triaged"
-
-        triage_date = self.triaged_at or self.closed_at
-
-        if self.created_at and triage_date:
-            self.days_until_triage = dates.businesstimedelta(self.created_at, triage_date).days
+        """
+        Pre-calculate triage business days, so we can do queries against it.
+        """
+        if self.sla_triaged_at:
+            btd = dates.businesstimedelta(self.created_at, self.sla_triaged_at)
+            self.days_until_triage = btd.days
         else:
             self.days_until_triage = None
 
@@ -174,7 +176,9 @@ class Report(models.Model):
 
 class Bounty(models.Model):
     '''
-    A bounty awarded on a Report
+    A bounty awarded on a Report.
+
+    See https://api.hackerone.com/docs/v1#bounty
     '''
     id = models.PositiveIntegerField(primary_key=True)
     report = models.ForeignKey(Report, related_name="bounties")
@@ -188,6 +192,74 @@ class Bounty(models.Model):
 
     def __str__(self):
         return f"${self.amount} + ${self.bonus}" if self.bonus else f"${self.amount}"
+
+
+class Activity(models.Model):
+    """
+    Represents an action performed on a report.
+
+    See https://api.hackerone.com/docs/v1#activity
+
+    HackerOne's API represents these with a bunch of different object types
+    (e.g. ActivityAgreedOnGoingPublic, ActivityComment, etc). Since these have
+    mostly-the-same fields, and since we don't want to have to update our
+    database as new activity types get added, we represent this here with a
+    single model. We'll use hstore to store the fields that different fields
+    on each model.
+    """
+    id = models.PositiveIntegerField(primary_key=True)
+    report = models.ForeignKey(Report, related_name="activities")
+    type = models.CharField(max_length=150)
+    created_at = models.DateTimeField()
+    attributes = HStoreField(default=dict)
+
+    class Meta:
+        verbose_name = "activity"
+        verbose_name_plural = "activities"
+        ordering = ["created_at"]
+
+    @property
+    def actor(self):
+        if "H1_actor" in self.attributes:
+            return "<{H1_actor_type}: {H1_actor}>".format(**self.attributes)
+        else:
+            return None
+
+    @property
+    def group(self):
+        return self.attributes.get('H1_group', None)
+
+    # List of activity types that indicate that an issue has been triaged
+    # (for SLA purposes)
+    _ACTIVITY_TRIAGE_INDICATOR_TYPES = (
+        'activity-bug-duplicate',
+        'activity-bug-informative',
+        'activity-bug-needs-more-info',
+        'activity-bug-not-applicable',
+        'activity-bug-resolved',
+        'activity-bug-spam',
+        'activity-bug-triaged'
+    )
+
+    # Prefix indicating that a group is a HackerOne triage team group
+    _H1_GROUP_NAME_PREFIX = 'H1-'
+
+    def save(self, *args, **kwargs):
+        # Mark tickets as triaged when one of the activities above happens
+        if self.type in self._ACTIVITY_TRIAGE_INDICATOR_TYPES:
+            if self.report.sla_triaged_at is None or self.report.sla_triaged_at > self.created_at:
+                self.report.sla_triaged_at = self.created_at
+                self.report.save()
+
+        # When a ticket is assigned to a group, mark it as triaged if the group
+        # isn't a HackerOne group, indicated by _H1_GROUP_NAME_PREFIX
+        elif self.type == 'activity-group-assigned-to-bug':
+            if not self.attributes['H1_group'].startswith(self._H1_GROUP_NAME_PREFIX):
+                if self.report.sla_triaged_at is None or self.report.sla_triaged_at > self.created_at:
+                    self.report.sla_triaged_at = self.created_at
+                    self.report.save()
+
+        return super().save(*args, **kwargs)
 
 class SingletonMetadata(models.Model):
     '''

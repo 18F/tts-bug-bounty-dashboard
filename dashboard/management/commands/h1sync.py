@@ -29,6 +29,17 @@ class Command(BaseCommand):
         listing = h1.find_reports(**kwargs)
         count = 0
         for h1_report in listing:
+            self._sync_report(h1_report, now)
+            count += 1
+
+        records = "records" if count != 1 else "record"
+        self.stdout.write(f"Synchronized {count} {records} with HackerOne.")
+
+        metadata.last_synced_at = now
+        metadata.save()
+        self.stdout.write("Done.")
+
+    def _sync_report(self, h1_report, now):
             self.stdout.write(f"Synchronizing #{h1_report.id}.")
             scope = h1_report.structured_scope
 
@@ -51,18 +62,52 @@ class Command(BaseCommand):
                 id=h1_report.id
             )
 
-            # If there are awarded bounties, create/update them
-            for h1_bounty in h1_report.bounties:
-                report.bounties.update_or_create(id=h1_bounty.id, defaults=dict(
-                    amount=h1_bounty.amount,
-                    bonus=h1_bounty.bonus_amount,
-                    created_at=h1_bounty.created_at,
-                ))
+            self._sync_bounties(report, h1_report)
+            self._sync_activities(report, h1_report)
 
-            count += 1
-        records = "records" if count != 1 else "record"
-        self.stdout.write(f"Synchronized {count} {records} with HackerOne.")
+    def _sync_activities(self, report, h1_report):
+        """
+        Sync activities
 
-        metadata.last_synced_at = now
-        metadata.save()
-        self.stdout.write("Done.")
+        The H1 API doesn't return activities on a search, which is what
+        find_reports() does, so we have to re-fetch the resource. This slows
+        things down, grrr, but... oh well.
+        """
+        h1_report._fetch_canonical()
+        for h1_activity in h1_report.activities:
+            # Since there are a bunch of activity types that we don't want
+            # to model individually, just stuff all the attributes into an
+            # hstore.
+            attributes = h1_activity.raw_data["attributes"].copy()
+
+            # Relationships are a bit special since they don't
+            # show up in attributes. Store them with an H1_ prefix so they
+            # don't conflict.
+            if hasattr(h1_activity, 'actor'):
+                attributes['H1_actor_type'] = h1_activity.actor.TYPE
+                if hasattr(h1_activity.actor, 'username'):
+                    attributes['H1_actor'] = h1_activity.actor.username
+                elif hasattr(h1_activity.actor, 'name'):
+                    attributes['H1_actor'] = h1_activity.actor.name
+                else:
+                    raise ValueError(f"Don't know how to store actor: {h1_activity.actor}")
+
+            if hasattr(h1_activity, 'group'):
+                attributes['H1_group'] = h1_activity.group.name
+
+            report.activities.update_or_create(id=h1_activity.id, defaults=dict(
+                type=h1_activity.TYPE,
+                created_at=h1_activity.created_at,
+                attributes=attributes,
+            ))
+
+    def _sync_bounties(self, report, h1_report):
+        """
+        If there are awarded bounties on a report, create/update them in the DB
+        """
+        for h1_bounty in h1_report.bounties:
+            report.bounties.update_or_create(id=h1_bounty.id, defaults=dict(
+                amount=h1_bounty.amount,
+                bonus=h1_bounty.bonus_amount,
+                created_at=h1_bounty.created_at,
+            ))

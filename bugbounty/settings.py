@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
 import dj_email_url
@@ -54,11 +53,6 @@ if DEBUG:
         'This is a fake secret key for development/debugging only'
     )
     os.environ.setdefault(
-        'DATABASE_URL',
-        (Path(BASE_DIR) / 'db.sqlite3').as_uri().replace('file:///',
-                                                         'sqlite:////')
-    )
-    os.environ.setdefault(
         'EMAIL_URL',
         os.environ.get('DEFAULT_DEBUG_EMAIL_URL', 'console:')
     )
@@ -91,6 +85,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.postgres',
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'uaa_client',
