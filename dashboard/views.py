@@ -24,11 +24,12 @@ def get_bookmarklet_url(request):
 @login_required
 def index(request):
     contract_month_start_day = getattr(settings, 'SLA_METRICS_CONTRACT_START_DAY', 1)
+    stats = Report.get_stats(contract_month_start_day)
 
     return render(request, 'index.html', {
         'last_synced_at': naturaltime(SingletonMetadata.load().last_synced_at),
-        'stats': Report.get_stats(),
-        'stats_by_month': Report.get_stats_by_month(contract_month_start_day),
+        'stats': stats,
+        'totals': stats.pop('totals'),
         'bookmarklet_url': get_bookmarklet_url(request),
         'contract_month_start_day': contract_month_start_day,
         'contract_month_start_day_ordinal': ordinal(contract_month_start_day),

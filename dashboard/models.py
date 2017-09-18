@@ -123,40 +123,22 @@ class Report(models.Model):
         return super().save(*args, **kwargs)
 
     @classmethod
-    def get_stats(cls):
+    def get_stats(cls, contract_month_start_day=1):
         """
-        Get aggregate SLA stats, all time.
-        """
-        reports = cls.objects.filter(is_eligible_for_bounty=True)
-        count = reports.count()
-        accurates = reports.filter(is_accurate=True).count()
-        false_negatives = reports.filter(is_false_negative=True).count()
-        triaged_within_one_day = reports.filter(days_until_triage__lte=1).count()
-
-        return {
-            'count': count,
-            'triaged_accurately': accurates,
-            'false_negatives': false_negatives,
-            'triaged_within_one_day': triaged_within_one_day,
-        }
-
-    @classmethod
-    def get_stats_by_month(cls, contract_month_start_day=1):
-        """
-        Get SLA stats, broken down by calendar month.
+        Get SLA stats, total and also broken down by calendar month.
         """
         # I could do this in SQL with date_trunc, but eventually this'll need
         # to be contract-month, so like the 7th-7th or something, which AFAIK
         # can't be done in SQL (and certainly not in Django). So just do this
         # by hand. There are only a few hundred reports/month right now, so this
         # should be OK.
-        stats_by_month = {}
+        stats = {}
 
         reports = cls.objects.filter(is_eligible_for_bounty=True, days_until_triage__gte=0)
         for report in reports:
             first_day, last_day = dates.contract_month(report.created_at, contract_month_start_day)
-            if first_day not in stats_by_month:
-                stats_by_month[first_day] = {
+            if first_day not in stats:
+                stats[first_day] = {
                     'count': 0,
                     'triaged_accurately': 0,
                     'false_negatives': 0,
@@ -165,14 +147,18 @@ class Report(models.Model):
 
                 }
 
-            stats_by_month[first_day]['count'] += 1
-            stats_by_month[first_day]['triaged_accurately'] += report.is_accurate
-            stats_by_month[first_day]['false_negatives'] += report.is_false_negative
+            stats[first_day]['count'] += 1
+            stats[first_day]['triaged_accurately'] += report.is_accurate
+            stats[first_day]['false_negatives'] += report.is_false_negative
             if report.days_until_triage <= 1:
-                stats_by_month[first_day]['triaged_within_one_day'] += 1
+                stats[first_day]['triaged_within_one_day'] += 1
 
-        return stats_by_month
+        stats["totals"] = {
+            key: sum(month_stats[key] for month_stats in stats.values()) if stats else 0
+            for key in ('count', 'triaged_accurately', 'false_negatives', 'triaged_within_one_day')
+        }
 
+        return stats
 
 class Bounty(models.Model):
     '''

@@ -50,16 +50,16 @@ def test_save_sets_days_until_triage_to_value_if_triaged():
 
 @pytest.mark.django_db
 def test_get_stats_reports_triage_accuracy():
-    new_report(id=1, is_accurate=True).save()
-    new_report(id=2, is_accurate=False).save()
-    assert Report.get_stats()['triaged_accurately'] == 1
+    new_triaged_report(id=1, is_accurate=True, triage_days=1).save()
+    new_triaged_report(id=2, is_accurate=False, triage_days=1).save()
+    assert Report.get_stats()['totals']['triaged_accurately'] == 1
 
 
 @pytest.mark.django_db
 def test_get_stats_reports_false_negatives():
-    new_report(id=1, is_false_negative=True).save()
-    new_report(id=2, is_false_negative=False).save()
-    assert Report.get_stats()['false_negatives'] == 1
+    new_triaged_report(id=1, is_false_negative=True, triage_days=1).save()
+    new_triaged_report(id=2, is_false_negative=False, triage_days=1).save()
+    assert Report.get_stats()['totals']['false_negatives'] == 1
 
 
 @pytest.mark.django_db
@@ -67,7 +67,7 @@ def test_get_stats_reports_triaged_within_one_day():
     new_report(id=1).save()
     new_triaged_report(triage_days=1, id=2).save()
     new_triaged_report(triage_days=2, id=3).save()
-    assert Report.get_stats()['triaged_within_one_day'] == 1
+    assert Report.get_stats()['totals']['triaged_within_one_day'] == 1
 
 
 DEFAULT_STATS = {
@@ -79,14 +79,14 @@ DEFAULT_STATS = {
 
 @pytest.mark.django_db
 def test_get_stats_returns_defaults_when_counts_are_zero():
-    assert Report.get_stats() == DEFAULT_STATS
+    assert Report.get_stats()['totals'] == DEFAULT_STATS
 
 @pytest.mark.django_db
 def test_get_stats_ignores_reports_ineligible_for_bounty():
     new_triaged_report(id=1, triage_days=4, is_eligible_for_bounty=False).save()
     new_triaged_report(id=2, is_false_negative=True, is_eligible_for_bounty=False).save()
     new_triaged_report(id=3, is_accurate=False, is_eligible_for_bounty=False).save()
-    assert Report.get_stats() == DEFAULT_STATS
+    assert Report.get_stats()['totals'] == DEFAULT_STATS
 
 @pytest.mark.django_db
 def test_singleton_metadata_works():
@@ -104,7 +104,7 @@ def test_singleton_metadata_works():
     assert meta.last_synced_at == right_now
 
 @pytest.mark.django_db
-def test_get_stats_by_month():
+def test_monthly_stats():
 
     # Make two tickets in September: one triaged on time, one not. Date
     # carefully chosen: a Monday, not Labor Day, to make the business day
@@ -132,13 +132,19 @@ def test_get_stats_by_month():
             'false_negatives': 0,
             'triaged_within_one_day': 1,
             'last_day': datetime.date(2017, 9, 30)
+        },
+        'totals': {
+            'count': 4,
+            'triaged_accurately': 4,
+            'false_negatives': 0,
+            'triaged_within_one_day': 3,
         }
     }
 
-    assert Report.get_stats_by_month() == expected_stats
+    assert Report.get_stats() == expected_stats
 
 @pytest.mark.django_db
-def test_get_stats_by_month_different_contract_start_day():
+def test_monthly_stats_different_contract_start_day():
 
     contract_start_day = 7
 
@@ -164,10 +170,16 @@ def test_get_stats_by_month_different_contract_start_day():
             'false_negatives': 0,
             'triaged_within_one_day': 1,
             'last_day': datetime.date(2017, 10, contract_start_day - 1)
+        },
+        'totals': {
+            'count': 2,
+            'triaged_accurately': 2,
+            'false_negatives': 0,
+            'triaged_within_one_day': 2,
         }
     }
 
-    assert Report.get_stats_by_month(contract_start_day) == expected_stats
+    assert Report.get_stats(contract_start_day) == expected_stats
 
 @pytest.mark.django_db
 def test_bounty_str_no_bonus():

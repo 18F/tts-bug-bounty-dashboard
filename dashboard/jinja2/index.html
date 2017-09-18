@@ -22,7 +22,7 @@
     </tr>
   </thead>
   <tbody>
-  {% for month, month_stats in stats_by_month.items()|sort %}
+  {% for month, month_stats in stats.items()|sort %}
     <tr>
       <th scope="row">
         {{ month.strftime("%B %Y") }}
@@ -42,10 +42,10 @@
   <tfoot>
     <tr>
       <th scope="row">All time</th>
-      <td>{{ stats.count }}</td>
-      <td>{{ percentage(stats.triaged_accurately, stats.count) }}</td>
-      <td>{{ percentage(stats.false_negatives, stats.count) }}</td>
-      <td>{{ percentage(stats.triaged_within_one_day, stats.count) }}</td>
+      <td>{{ totals.count }}</td>
+      <td>{{ percentage(totals.triaged_accurately, totals.count) }}</td>
+      <td>{{ percentage(totals.false_negatives, totals.count) }}</td>
+      <td>{{ percentage(totals.triaged_within_one_day, totals.count) }}</td>
     </tr>
   </tfoot>
 </table>
