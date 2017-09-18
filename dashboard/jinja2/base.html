@@ -55,6 +55,7 @@
       </button>
       <ul class="usa-nav-primary usa-accordion">
       {% if request.user.is_authenticated() %}
+        <li><a href="{{ url('bounty_list') }}">List of paid bounties</a></li>
         <li><a href="{{ url('logout') }}">Logout {{ request.user.email }}</a></li>
         {% if request.user.is_staff %}
           <li><a href="{{ url('admin:index') }}">Admin</a></li>
