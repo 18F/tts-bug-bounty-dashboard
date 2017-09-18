@@ -134,7 +134,7 @@ class Report(models.Model):
         # should be OK.
         stats = {}
 
-        reports = cls.objects.filter(is_eligible_for_bounty=True, days_until_triage__gte=0)
+        reports = cls.objects.filter(days_until_triage__isnull=False)
         for report in reports:
             first_day, last_day = dates.contract_month(report.created_at, contract_month_start_day)
             if first_day not in stats:

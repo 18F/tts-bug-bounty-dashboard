@@ -82,13 +82,6 @@ def test_get_stats_returns_defaults_when_counts_are_zero():
     assert Report.get_stats()['totals'] == DEFAULT_STATS
 
 @pytest.mark.django_db
-def test_get_stats_ignores_reports_ineligible_for_bounty():
-    new_triaged_report(id=1, triage_days=4, is_eligible_for_bounty=False).save()
-    new_triaged_report(id=2, is_false_negative=True, is_eligible_for_bounty=False).save()
-    new_triaged_report(id=3, is_accurate=False, is_eligible_for_bounty=False).save()
-    assert Report.get_stats()['totals'] == DEFAULT_STATS
-
-@pytest.mark.django_db
 def test_singleton_metadata_works():
     right_now = now()
 
