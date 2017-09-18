@@ -1,4 +1,4 @@
-from django.conf.urls import url, include
+from django.conf.urls import url
 from . import views
 
 urlpatterns = [
@@ -6,5 +6,3 @@ urlpatterns = [
     url(r'^bounties/$', views.bounty_list, name='bounty_list'),
     url(r'^logout/$', views.logout_user, name='logout'),
 ]
-
-
