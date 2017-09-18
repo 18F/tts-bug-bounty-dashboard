@@ -43,3 +43,7 @@ def test_index_requires_logged_in_user(client):
     response = client.get('/')
     assert response.status_code == 302
     assert response['location'] == '/auth/login?next=/'
+
+def test_bounty_list(some_user_client):
+    response = some_user_client.get('/bounties/')
+    assert response.status_code == 200

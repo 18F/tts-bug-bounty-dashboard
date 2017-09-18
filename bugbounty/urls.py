@@ -15,10 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-
 from .decorators import staff_login_required
-import dashboard.views
-
 
 # Wrap the admin site login with our staff_login_required decorator,
 # which will raise a PermissionDenied exception if a logged-in, but non-staff
@@ -27,8 +24,7 @@ import dashboard.views
 admin.site.login = staff_login_required(admin.site.login)
 
 urlpatterns = [
-    url(r'^$', dashboard.views.index, name='index'),
-    url(r'^logout/$', dashboard.views.logout_user, name='logout'),
+    url(r'', include('dashboard.urls')),
     url(r'^auth/', include('uaa_client.urls')),
     url(r'^admin/', admin.site.urls),
 ]

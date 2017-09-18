@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Paid Bounties</h2>
+
+<table class="usa-table-borderless">
+  <thead>
+    <tr>
+      <th scope="col">Report ID</th>
+      <th scope="col">Date of bounty award</th>
+      <th scope="col">Bounty</th>
+      <th scope="col">Bonus</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for bounty in bounties %}
+    <tr>
+      <th scope="row"><a href="{{ bounty.report.get_absolute_url}}">#{{ bounty.report.id }}</a></th>
+      <td>{{ bounty.created_at.strftime("%Y-%m-%d") }}</td>
+      <td>${{ bounty.amount }}</td>
+      <td>${{ bounty.bonus }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% if last_synced_at %}
+<p>
+  These statistics are based on a snapshot of HackerOne's
+  data that was last updated {{ last_synced_at }}.
+</p>
+{% endif %}
+
+{% endblock %}

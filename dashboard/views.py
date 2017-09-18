@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib.humanize.templatetags.humanize import naturaltime, ordinal
 
-from .models import Report, SingletonMetadata
+from .models import Report, Bounty, SingletonMetadata
 
 
 def get_bookmarklet_url(request):
@@ -35,6 +35,16 @@ def index(request):
         'contract_month_start_day_ordinal': ordinal(contract_month_start_day),
     })
 
+
+@login_required
+def bounty_list(request):
+    """
+    Show all paid bounties.
+    """
+    bounties = Bounty.objects.select_related('report').order_by('-created_at')
+    return render(request, 'bounty_list.html', {
+        'bounties': bounties,
+    })
 
 def logout_user(request):
     logout(request)
