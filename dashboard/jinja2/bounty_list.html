@@ -15,7 +15,7 @@
   <tbody>
   {% for bounty in bounties %}
     <tr>
-      <th scope="row"><a href="{{ bounty.report.get_absolute_url}}">#{{ bounty.report.id }}</a></th>
+      <th scope="row"><a href="{{ bounty.report.get_absolute_url() }}">#{{ bounty.report.id }}</a></th>
       <td>{{ bounty.created_at.strftime("%Y-%m-%d") }}</td>
       <td>${{ bounty.amount }}</td>
       <td>${{ bounty.bonus }}</td>
