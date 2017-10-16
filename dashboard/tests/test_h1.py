@@ -2,6 +2,7 @@ from django.test import override_settings
 from unittest import mock
 
 from .. import h1
+from h1 import models as h1_models
 
 
 @override_settings(H1_PROGRAMS=[
@@ -95,3 +96,16 @@ def test_newer_report_works():
     assert report.structured_scope.asset_identifier == 'api.example.com'
     assert report.structured_scope.asset_type == 'url'
     assert report.structured_scope.eligible_for_bounty is True
+
+def test_bounty_amounts_containing_commas():
+    # Frustratingly, h1's API returns bounty amounts over 999 that contain
+    # commas. This tests that our monkeypatch handles this correctly.
+    b = h1_models.Bounty(None, {
+        'type': 'bounty',
+        'attributes': {
+            'created_at': '2016-02-02T04:05:06.000Z',
+            'amount': '2,000',
+            'bonus_amount': '1,500'
+        }
+    })
+    assert b.amount == 2000

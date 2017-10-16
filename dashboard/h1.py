@@ -1,3 +1,4 @@
+import decimal
 from itertools import chain
 from h1.client import HackerOneClient
 from h1 import models as h1_models
@@ -75,6 +76,16 @@ class ActivityChangedScope(h1_models.ActivityBase):
 
 class ActivityNobodyAssignedToBug(h1_models.ActivityBase):
     TYPE = "activity-nobody-assigned-to-bug"
+
+
+# Frustratingly, HackerOne's API returns bounty amounts that include commas
+# for values over 999. This gross monkeypatch fixes that.
+h1_models.HackerOneObject._hydrate_decimal = lambda self, val: decimal.Decimal(val.replace(',', ''))
+
+class NewerActivityBountyAwarded(h1_models.ActivityBountyAwarded):
+    """Same as NewerBounty."""
+    def _hydrate_decimal(self, val):
+        return super()._hydrate_decimal(val.replace(',', ''))
 
 class ProgramConfiguration:
     '''
