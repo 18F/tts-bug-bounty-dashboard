@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/tts-bug-bounty-dashboard
     docker:
-      - image: circleci/python:3.6.1
+      - image: circleci/python:3.6.8
       - image: postgres:9.6
         environment:
           - POSTGRES_USER=pg
