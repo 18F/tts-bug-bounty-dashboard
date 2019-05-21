@@ -11,7 +11,7 @@ applications:
     - route: bbdash.app.cloud.gov
   buildpack: python_buildpack
   command: bash cf.sh
-  stack: cflinuxfs2
+  stack: cflinuxfs3
   timeout: 180
   env:
     WEB_CONCURRENCY: "2"
@@ -22,7 +22,7 @@ applications:
   memory: 128M
   buildpack: python_buildpack
   command: python manage.py runscheduler
-  stack: cflinuxfs2
+  stack: cflinuxfs3
   timeout: 180
   env:
     DISABLE_COLLECTSTATIC: "1"

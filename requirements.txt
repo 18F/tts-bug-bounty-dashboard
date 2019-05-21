@@ -1,6 +1,6 @@
-Django==1.11.2
+Django==1.11.20
 h1==1.4.2
-Jinja2==2.9.6
+Jinja2==2.10.1
 python-dotenv==0.6.4
 businesstime==0.2.1
 pytz==2017.2
