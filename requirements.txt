@@ -1,4 +1,4 @@
-Django==1.11.20
+Django==1.11.29
 h1==1.4.2
 Jinja2==2.10.1
 python-dotenv==0.6.4
